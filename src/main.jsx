@@ -3,7 +3,11 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
+import axios from 'axios'
 import './index.css'
+
+// Configure global axios default base URL for API requests
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
 const theme = createTheme({
   palette: {
