@@ -3,26 +3,51 @@ import { useForm as useReactHookForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  Box, Typography, Grid, Paper, TextField, MenuItem,
-  Button, IconButton, CircularProgress, Card, CardContent, Divider
+  Box, Typography, Grid, TextField, MenuItem,
+  Button, IconButton, CircularProgress, Divider, Paper, Chip
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 }
-  }
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 22 } },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-};
+const SectionHeader = ({ icon, title, subtitle }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+    <Box
+      sx={{
+        width: 36, height: 36, borderRadius: '10px',
+        background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {icon}
+    </Box>
+    <Box>
+      <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a', lineHeight: 1.3 }}>
+        {title}
+      </Typography>
+      {subtitle && (
+        <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+          {subtitle}
+        </Typography>
+      )}
+    </Box>
+  </Box>
+);
 
 const CreatePass = () => {
   const { register, handleSubmit, formState: { errors } } = useReactHookForm();
@@ -39,20 +64,18 @@ const CreatePass = () => {
     }
   };
 
+  const removePhoto = () => { setPhotoFile(null); setPhotoPreview(null); };
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
       const formData = new FormData();
       Object.keys(data).forEach(key => formData.append(key, data[key]));
-      if (photoFile) {
-        formData.append('visitorPhoto', photoFile);
-      }
-
+      if (photoFile) formData.append('visitorPhoto', photoFile);
       await axios.post('/api/gatepass', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
-      toast.success('Gate Pass request created successfully');
+      toast.success('Gate Pass request created successfully!');
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creating pass');
@@ -61,249 +84,354 @@ const CreatePass = () => {
     }
   };
 
+  const fieldSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '10px', bgcolor: '#fafbfc',
+      '&:hover fieldset': { borderColor: '#1976d2' },
+      '&.Mui-focused fieldset': { borderColor: '#1976d2' },
+    },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
+  };
+
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', py: 2 }}>
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Box display="flex" alignItems="center" gap={2} mb={4}>
-          <Box 
-            sx={{ 
-              p: 1.5, 
-              borderRadius: 2, 
-              bgcolor: 'primary.main', 
-              color: 'white',
-              boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)'
+    <Box sx={{ maxWidth: 900, mx: 'auto' }}>
+      {/* Page Header */}
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+          <Box
+            sx={{
+              width: 48, height: 48, borderRadius: '14px',
+              background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 20px rgba(25,118,210,0.35)', flexShrink: 0,
             }}
           >
-            <AssignmentTurnedInIcon fontSize="large" />
+            <AssignmentTurnedInIcon sx={{ color: 'white', fontSize: 26 }} />
           </Box>
           <Box>
-            <Typography variant="h4" fontWeight="bold" sx={{ background: 'linear-gradient(45deg, #1976d2, #9c27b0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <Typography variant="h5" fontWeight={800} sx={{ color: '#0f172a' }}>
               Create Gate Pass
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary">Fill in the details for the new visitor pass request</Typography>
+            <Typography variant="body2" sx={{ color: '#64748b' }}>
+              Fill in visitor details to submit a new pass request
+            </Typography>
           </Box>
         </Box>
       </motion.div>
 
       <motion.div variants={containerVariants} initial="hidden" animate="show">
-        <Card sx={{ borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.08)', overflow: 'visible' }}>
-          <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid container spacing={3}>
-                {/* General Details Section */}
-                <Grid item xs={12}>
-                  <motion.div variants={itemVariants}>
-                    <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-                      Visit Details
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                  </motion.div>
-                </Grid>
+        <form onSubmit={handleSubmit(onSubmit)}>
 
+          {/* ─── Section 1: Visit Details ─── */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 3, border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', p: { xs: 2.5, sm: 3.5 }, mb: 2.5,
+              }}
+            >
+              <SectionHeader
+                icon={<InfoOutlinedIcon sx={{ color: 'white', fontSize: 18 }} />}
+                title="Visit Details"
+                subtitle="Date, unit, type and purpose of visit"
+              />
+              <Grid container spacing={2.5}>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      fullWidth label="Date & Time" type="datetime-local"
-                      InputLabelProps={{ shrink: true }}
-                      {...register("date", { required: "Date is required" })}
-                      error={!!errors.date} helperText={errors.date?.message}
-                      variant="outlined"
-                    />
-                  </motion.div>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      fullWidth select label="Unit" defaultValue=""
-                      {...register("unit", { required: "Unit is required" })}
-                      error={!!errors.unit} helperText={errors.unit?.message}
-                    >
-                      <MenuItem value="Sugar">Sugar</MenuItem>
-                      <MenuItem value="Distillery">Distillery</MenuItem>
-                    </TextField>
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      fullWidth select label="Visit Type" defaultValue=""
-                      {...register("visitType", { required: "Visit Type is required" })}
-                      error={!!errors.visitType} helperText={errors.visitType?.message}
-                    >
-                      <MenuItem value="Official">Official</MenuItem>
-                      <MenuItem value="Non-Official">Non-Official</MenuItem>
-                    </TextField>
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      fullWidth select label="Purpose" defaultValue=""
-                      {...register("purpose", { required: "Purpose is required" })}
-                      error={!!errors.purpose} helperText={errors.purpose?.message}
-                    >
-                      <MenuItem value="Meeting">Meeting</MenuItem>
-                      <MenuItem value="Interview">Interview</MenuItem>
-                      <MenuItem value="Govt Officials">Govt Officials</MenuItem>
-                      <MenuItem value="Contractors">Contractors</MenuItem>
-                      <MenuItem value="Quotation Submission">Quotation Submission</MenuItem>
-                    </TextField>
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Person To Meet" {...register("personToMeet", { required: "Person to meet is required" })} error={!!errors.personToMeet} helperText={errors.personToMeet?.message} />
-                  </motion.div>
+                  <TextField
+                    fullWidth label="Date & Time" type="datetime-local"
+                    InputLabelProps={{ shrink: true }}
+                    {...register('date', { required: 'Date is required' })}
+                    error={!!errors.date} helperText={errors.date?.message}
+                    sx={fieldSx}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Department" {...register("department", { required: "Department is required" })} error={!!errors.department} helperText={errors.department?.message} />
-                  </motion.div>
-                </Grid>
-
-                {/* Visitor Details Section */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <motion.div variants={itemVariants}>
-                    <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-                      Visitor Details
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Visitor Name" {...register("visitorName", { required: "Name is required" })} error={!!errors.visitorName} helperText={errors.visitorName?.message} />
-                  </motion.div>
+                  <TextField
+                    fullWidth select label="Unit" defaultValue=""
+                    {...register('unit', { required: 'Unit is required' })}
+                    error={!!errors.unit} helperText={errors.unit?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="Sugar">Sugar</MenuItem>
+                    <MenuItem value="Distillery">Distillery</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Mobile Number" {...register("mobileNumber", { required: "Mobile Number is required" })} error={!!errors.mobileNumber} helperText={errors.mobileNumber?.message} />
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Company Name" {...register("companyName", { required: "Company Name is required" })} error={!!errors.companyName} helperText={errors.companyName?.message} />
-                  </motion.div>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth type="number" label="Number of Persons" defaultValue={1} {...register("numberOfPersons", { required: true, min: 1 })} error={!!errors.numberOfPersons} />
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField
-                      fullWidth select label="ID Proof Type" defaultValue=""
-                      {...register("idProofType", { required: "ID Proof Type is required" })}
-                      error={!!errors.idProofType} helperText={errors.idProofType?.message}
-                    >
-                      <MenuItem value="Aadhaar">Aadhaar</MenuItem>
-                      <MenuItem value="PAN">PAN</MenuItem>
-                      <MenuItem value="Company ID">Company ID</MenuItem>
-                    </TextField>
-                  </motion.div>
+                  <TextField
+                    fullWidth select label="Visit Type" defaultValue=""
+                    {...register('visitType', { required: 'Visit Type is required' })}
+                    error={!!errors.visitType} helperText={errors.visitType?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="Official">Official</MenuItem>
+                    <MenuItem value="Non-Official">Non-Official</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="ID Number" {...register("idNumber", { required: "ID Number is required" })} error={!!errors.idNumber} helperText={errors.idNumber?.message} />
-                  </motion.div>
-                </Grid>
-
-                {/* Additional Items */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <motion.div variants={itemVariants}>
-                    <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-                      Items & Vehicle (Optional)
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                  </motion.div>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Vehicle Number" {...register("vehicleNumber")} />
-                  </motion.div>
+                  <TextField
+                    fullWidth select label="Purpose" defaultValue=""
+                    {...register('purpose', { required: 'Purpose is required' })}
+                    error={!!errors.purpose} helperText={errors.purpose?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="Meeting">Meeting</MenuItem>
+                    <MenuItem value="Interview">Interview</MenuItem>
+                    <MenuItem value="Govt Officials">Govt Officials</MenuItem>
+                    <MenuItem value="Contractors">Contractors</MenuItem>
+                    <MenuItem value="Quotation Submission">Quotation Submission</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Items Carrying" {...register("itemsCarrying")} />
-                  </motion.div>
+                  <TextField
+                    fullWidth label="Person To Meet"
+                    {...register('personToMeet', { required: 'Required' })}
+                    error={!!errors.personToMeet} helperText={errors.personToMeet?.message}
+                    sx={fieldSx}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Serial Number" {...register("serialNumber")} />
-                  </motion.div>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <motion.div variants={itemVariants}>
-                    <TextField fullWidth label="Make" {...register("make")} />
-                  </motion.div>
-                </Grid>
-
-                {/* Photo Upload Section */}
-                <Grid item xs={12}>
-                  <motion.div variants={itemVariants}>
-                    <Box 
-                      sx={{ 
-                        border: '2px dashed #ccc', 
-                        borderRadius: 2, 
-                        p: 3, 
-                        textAlign: 'center',
-                        bgcolor: '#fafafa',
-                        transition: 'all 0.3s ease',
-                        '&:hover': { borderColor: 'primary.main', bgcolor: '#f0f7ff' }
-                      }}
-                    >
-                      <input hidden accept="image/*" type="file" id="icon-button-file" onChange={handlePhotoChange} />
-                      <label htmlFor="icon-button-file">
-                        <IconButton color="primary" aria-label="upload picture" component="span" size="large">
-                          <PhotoCamera fontSize="large" />
-                        </IconButton>
-                      </label>
-                      <Typography variant="subtitle1" fontWeight="bold" mt={1}>
-                        {photoFile ? photoFile.name : 'Click to Upload Visitor Photo'}
-                      </Typography>
-                      {photoPreview && (
-                        <Box mt={2}>
-                          <Box component="img" src={photoPreview} alt="Preview" sx={{ width: 100, height: 100, borderRadius: 2, objectFit: 'cover', boxShadow: 2 }} />
-                        </Box>
-                      )}
-                    </Box>
-                  </motion.div>
-                </Grid>
-
-                {/* Submit Button */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
-                  <motion.div variants={itemVariants} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
-                    <Button 
-                      type="submit" 
-                      variant="contained" 
-                      size="large" 
-                      fullWidth 
-                      disabled={loading}
-                      sx={{ 
-                        py: 1.5, 
-                        fontSize: '1.1rem', 
-                        fontWeight: 'bold', 
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        boxShadow: '0 8px 16px rgba(25, 118, 210, 0.24)'
-                      }}
-                    >
-                      {loading ? <CircularProgress size={24} color="inherit" /> : 'Submit Gate Pass Request'}
-                    </Button>
-                  </motion.div>
+                  <TextField
+                    fullWidth label="Department"
+                    {...register('department', { required: 'Required' })}
+                    error={!!errors.department} helperText={errors.department?.message}
+                    sx={fieldSx}
+                  />
                 </Grid>
               </Grid>
-            </form>
-          </CardContent>
-        </Card>
+            </Paper>
+          </motion.div>
+
+          {/* ─── Section 2: Visitor Details ─── */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 3, border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', p: { xs: 2.5, sm: 3.5 }, mb: 2.5,
+              }}
+            >
+              <SectionHeader
+                icon={<PersonSearchIcon sx={{ color: 'white', fontSize: 18 }} />}
+                title="Visitor Details"
+                subtitle="Personal and identification information"
+              />
+              <Grid container spacing={2.5}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth label="Visitor Name"
+                    {...register('visitorName', { required: 'Name is required' })}
+                    error={!!errors.visitorName} helperText={errors.visitorName?.message}
+                    sx={fieldSx}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth label="Mobile Number"
+                    {...register('mobileNumber', { required: 'Mobile is required' })}
+                    error={!!errors.mobileNumber} helperText={errors.mobileNumber?.message}
+                    sx={fieldSx}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth label="Company Name"
+                    {...register('companyName', { required: 'Company is required' })}
+                    error={!!errors.companyName} helperText={errors.companyName?.message}
+                    sx={fieldSx}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth type="number" label="Number of Persons" defaultValue={1}
+                    {...register('numberOfPersons', { required: true, min: 1 })}
+                    error={!!errors.numberOfPersons}
+                    helperText={errors.numberOfPersons ? 'Must be at least 1' : ''}
+                    sx={fieldSx}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth select label="ID Proof Type" defaultValue=""
+                    {...register('idProofType', { required: 'ID Proof is required' })}
+                    error={!!errors.idProofType} helperText={errors.idProofType?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="Aadhaar">Aadhaar</MenuItem>
+                    <MenuItem value="PAN">PAN</MenuItem>
+                    <MenuItem value="Company ID">Company ID</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth label="ID Number"
+                    {...register('idNumber', { required: 'ID Number is required' })}
+                    error={!!errors.idNumber} helperText={errors.idNumber?.message}
+                    sx={fieldSx}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+          </motion.div>
+
+          {/* ─── Section 3: Items & Vehicle ─── */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 3, border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', p: { xs: 2.5, sm: 3.5 }, mb: 2.5,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+                <SectionHeader
+                  icon={<DirectionsCarIcon sx={{ color: 'white', fontSize: 18 }} />}
+                  title="Items & Vehicle"
+                  subtitle="Optional — leave blank if not applicable"
+                />
+                <Chip label="Optional" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 600, fontSize: '0.7rem' }} />
+              </Box>
+              <Grid container spacing={2.5}>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Vehicle Number" {...register('vehicleNumber')} sx={fieldSx} />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Items Carrying" {...register('itemsCarrying')} sx={fieldSx} />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Serial Number" {...register('serialNumber')} sx={fieldSx} />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Make / Brand" {...register('make')} sx={fieldSx} />
+                </Grid>
+              </Grid>
+            </Paper>
+          </motion.div>
+
+          {/* ─── Section 4: Photo Upload ─── */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 3, border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)', p: { xs: 2.5, sm: 3.5 }, mb: 3,
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a', mb: 0.5 }}>
+                Visitor Photo
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 2 }}>
+                Upload a clear photo of the visitor (optional)
+              </Typography>
+
+              <Box
+                sx={{
+                  border: `2px dashed ${photoFile ? '#1976d2' : '#cbd5e1'}`,
+                  borderRadius: '12px',
+                  p: { xs: 3, sm: 4 },
+                  textAlign: 'center',
+                  bgcolor: photoFile ? 'rgba(25,118,210,0.04)' : '#fafbfc',
+                  transition: 'all 0.3s ease',
+                  '&:hover': { borderColor: '#1976d2', bgcolor: 'rgba(25,118,210,0.04)' },
+                  cursor: 'pointer',
+                  position: 'relative',
+                }}
+              >
+                <input
+                  hidden accept="image/*" type="file"
+                  id="photo-upload-input"
+                  onChange={handlePhotoChange}
+                />
+                {photoPreview ? (
+                  <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                    <Box
+                      component="img"
+                      src={photoPreview}
+                      alt="Preview"
+                      sx={{
+                        width: 120, height: 120, borderRadius: '12px',
+                        objectFit: 'cover',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                        display: 'block',
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={removePhoto}
+                      sx={{
+                        position: 'absolute', top: -10, right: -10,
+                        bgcolor: '#ef4444', color: 'white',
+                        width: 26, height: 26,
+                        '&:hover': { bgcolor: '#dc2626' },
+                        boxShadow: '0 2px 8px rgba(239,68,68,0.4)',
+                      }}
+                    >
+                      <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <label htmlFor="photo-upload-input" style={{ cursor: 'pointer', display: 'block' }}>
+                    <Box
+                      sx={{
+                        width: 56, height: 56, borderRadius: '14px',
+                        bgcolor: '#dbeafe', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', mx: 'auto', mb: 1.5,
+                      }}
+                    >
+                      <PhotoCamera sx={{ color: '#1976d2', fontSize: 28 }} />
+                    </Box>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: '#0f172a' }}>
+                      Click to upload photo
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                      JPG, PNG up to 5MB
+                    </Typography>
+                  </label>
+                )}
+                {photoFile && (
+                  <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#1976d2', fontWeight: 600 }}>
+                    ✓ {photoFile.name}
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </motion.div>
+
+          {/* ─── Submit Button ─── */}
+          <motion.div variants={itemVariants} whileHover={{ scale: 1.005 }} whileTap={{ scale: 0.995 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={loading}
+              sx={{
+                py: 1.6, fontSize: '1rem', fontWeight: 700,
+                borderRadius: '12px', letterSpacing: 0.3,
+                background: 'linear-gradient(135deg, #1565c0 0%, #7c3aed 100%)',
+                boxShadow: '0 8px 24px rgba(25,118,210,0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1976d2 0%, #6d28d9 100%)',
+                  boxShadow: '0 12px 32px rgba(25,118,210,0.45)',
+                  transform: 'translateY(-1px)',
+                },
+                '&:active': { transform: 'translateY(0)' },
+                '&:disabled': { background: '#e2e8f0', color: '#94a3b8', boxShadow: 'none' },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <CircularProgress size={20} sx={{ color: 'white' }} />
+                  <span>Submitting...</span>
+                </Box>
+              ) : (
+                '🚀 Submit Gate Pass Request'
+              )}
+            </Button>
+          </motion.div>
+
+        </form>
       </motion.div>
     </Box>
   );
