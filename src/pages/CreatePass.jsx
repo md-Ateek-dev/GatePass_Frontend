@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useForm as useReactHookForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Box, Typography, Grid, TextField, MenuItem,
-  Button, IconButton, CircularProgress, Divider, Paper, Chip
+  Button, IconButton, CircularProgress, Divider, Paper, Chip,
+  Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
+import Webcam from 'react-webcam';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -55,6 +57,24 @@ const CreatePass = () => {
   const [loading, setLoading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
+  const [cameraMode, setCameraMode] = useState(null);
+  const webcamRef = useRef(null);
+
+  const capturePhoto = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        setPhotoPreview(imageSrc);
+        fetch(imageSrc)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+            setPhotoFile(file);
+            setCameraMode(null);
+          });
+      }
+    }
+  }, [webcamRef]);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -296,7 +316,18 @@ const CreatePass = () => {
                   <TextField fullWidth label="Vehicle Number" {...register('vehicleNumber')} sx={fieldSx} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label="Items Carrying" {...register('itemsCarrying')} sx={fieldSx} />
+                  <TextField 
+                    fullWidth select label="Items Carrying" defaultValue="" 
+                    {...register('itemsCarrying')} 
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="None">None</MenuItem>
+                    <MenuItem value="USB">USB</MenuItem>
+                    <MenuItem value="Pen Drive">Pen Drive</MenuItem>
+                    <MenuItem value="Laptop">Laptop</MenuItem>
+                    <MenuItem value="Mobile">Mobile</MenuItem>
+                    <MenuItem value="Documents">Documents</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField fullWidth label="Serial Number" {...register('serialNumber')} sx={fieldSx} />
@@ -370,23 +401,52 @@ const CreatePass = () => {
                     </IconButton>
                   </Box>
                 ) : (
-                  <label htmlFor="photo-upload-input" style={{ cursor: 'pointer', display: 'block' }}>
-                    <Box
-                      sx={{
-                        width: 56, height: 56, borderRadius: '14px',
-                        bgcolor: '#dbeafe', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', mx: 'auto', mb: 1.5,
-                      }}
-                    >
-                      <PhotoCamera sx={{ color: '#1976d2', fontSize: 28 }} />
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <label htmlFor="photo-upload-input" style={{ cursor: 'pointer', textAlign: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 56, height: 56, borderRadius: '14px',
+                          bgcolor: '#dbeafe', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', mx: 'auto', mb: 1.5,
+                        }}
+                      >
+                        <PhotoCamera sx={{ color: '#1976d2', fontSize: 28 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: '#0f172a' }}>
+                        Upload
+                      </Typography>
+                    </label>
+                    
+                    <Box onClick={() => setCameraMode('user')} sx={{ cursor: 'pointer', textAlign: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 56, height: 56, borderRadius: '14px',
+                          bgcolor: '#dbeafe', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', mx: 'auto', mb: 1.5,
+                        }}
+                      >
+                        <PhotoCamera sx={{ color: '#1976d2', fontSize: 28 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: '#0f172a' }}>
+                        Front Camera
+                      </Typography>
                     </Box>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: '#0f172a' }}>
-                      Click to upload photo
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                      JPG, PNG up to 5MB
-                    </Typography>
-                  </label>
+                    
+                    <Box onClick={() => setCameraMode('environment')} sx={{ cursor: 'pointer', textAlign: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 56, height: 56, borderRadius: '14px',
+                          bgcolor: '#dbeafe', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', mx: 'auto', mb: 1.5,
+                        }}
+                      >
+                        <PhotoCamera sx={{ color: '#1976d2', fontSize: 28 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: '#0f172a' }}>
+                        Back Camera
+                      </Typography>
+                    </Box>
+                  </Box>
                 )}
                 {photoFile && (
                   <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#1976d2', fontWeight: 600 }}>
@@ -433,6 +493,28 @@ const CreatePass = () => {
 
         </form>
       </motion.div>
+      <Dialog open={!!cameraMode} onClose={() => setCameraMode(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Take Photo</DialogTitle>
+        <DialogContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 0, bgcolor: '#000', minHeight: 300 }}>
+          {cameraMode && (
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={{ facingMode: cameraMode }}
+              style={{ width: '100%', maxHeight: '70vh', objectFit: 'cover' }}
+              onUserMediaError={(err) => {
+                toast.error("Camera access denied or camera not found!");
+                setCameraMode(null);
+              }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCameraMode(null)}>Cancel</Button>
+          <Button variant="contained" onClick={capturePhoto}>Capture</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

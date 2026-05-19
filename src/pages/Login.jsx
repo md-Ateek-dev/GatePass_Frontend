@@ -1,9 +1,9 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, TextField, Button, InputAdornment,
-  IconButton, CircularProgress, Divider
+  IconButton, CircularProgress
 } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -200,22 +200,6 @@ const Login = () => {
             >
               {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : 'Sign In'}
             </Button>
-
-            <Divider sx={{ my: 2.5, color: '#94a3b8', fontSize: '0.8rem' }}>or</Divider>
-
-            <Box textAlign="center">
-              <Typography variant="body2" sx={{ color: '#64748b' }}>
-                Don't have an account?{' '}
-                <Link
-                  to="/register"
-                  style={{
-                    color: '#1976d2', fontWeight: 700, textDecoration: 'none',
-                  }}
-                >
-                  Register here
-                </Link>
-              </Typography>
-            </Box>
           </Box>
         </Box>
 

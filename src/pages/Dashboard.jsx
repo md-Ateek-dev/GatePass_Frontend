@@ -247,39 +247,116 @@ const Dashboard = () => {
         <DialogContent dividers id="printable-area">
           {selectedPass && (
             <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              <Box textAlign="center" mb={2} pb={1.5} sx={{ borderBottom: '1px solid #0f172a' }}>
+              {/* Header */}
+              <Box textAlign="center" mb={2} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
                 <Typography variant="h5" fontWeight={800}>Company Name Ltd.</Typography>
-                <Typography variant="subtitle2" color="text.secondary">Visitor Gate Pass</Typography>
+                <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
+                <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
               </Box>
-              <Grid container spacing={2}>
-                <Grid item xs={8}>
+
+              {/* Photo + Status row */}
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                <Box>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', px: 1.5, py: 0.5, borderRadius: 1, border: '1px solid #0f172a' }}>
+                    <Typography variant="body2" fontWeight={700}>Status: {selectedPass.status}</Typography>
+                  </Box>
+                </Box>
+                {selectedPass.visitorPhoto ? (
+                  <Box textAlign="center">
+                    <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc' }} />
+                    <Typography variant="caption" display="block">Visitor Photo</Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ width: 90, height: 90, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="caption" color="text.secondary">No Photo</Typography>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Section 1: Visit Info */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  VISIT INFORMATION
+                </Typography>
+                <Grid container spacing={0.5}>
                   {[
-                    ['GP Number', selectedPass.gatePassNumber],
-                    ['Date', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
-                    ['Visitor Name', selectedPass.visitorName],
-                    ['Company', selectedPass.companyName],
-                    ['Mobile', selectedPass.mobileNumber],
+                    ['Date & Time', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
+                    ['Unit', selectedPass.unit],
+                    ['Visit Type', selectedPass.visitType],
                     ['Purpose', selectedPass.purpose],
                     ['Person to Meet', selectedPass.personToMeet],
+                    ['Department', selectedPass.department],
                   ].map(([key, val]) => (
-                    <Typography key={key} variant="body2" sx={{ mb: 0.5 }}>
-                      <strong>{key}:</strong> {val}
-                    </Typography>
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
                   ))}
                 </Grid>
-                <Grid item xs={4} textAlign="right">
-                  {selectedPass.qrCode && (
-                    <img src={selectedPass.qrCode} alt="QR Code" style={{ width: 90, height: 90 }} />
-                  )}
-                  {selectedPass.visitorPhoto && (
-                    <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 80, height: 80, marginTop: 8, objectFit: 'cover', borderRadius: 4 }} />
-                  )}
+              </Box>
+
+              {/* Section 2: Visitor Info */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  VISITOR DETAILS
+                </Typography>
+                <Grid container spacing={0.5}>
+                  {[
+                    ['Visitor Name', selectedPass.visitorName],
+                    ['Mobile No.', selectedPass.mobileNumber],
+                    ['Company', selectedPass.companyName],
+                    ['No. of Persons', selectedPass.numberOfPersons],
+                    ['ID Proof Type', selectedPass.idProofType],
+                    ['ID Number', selectedPass.idNumber],
+                  ].map(([key, val]) => (
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
+                  ))}
                 </Grid>
-              </Grid>
-              <Box mt={4} display="flex" justifyContent="space-between">
-                {['Visitor Signature', 'Authorized Signatory'].map((label) => (
+              </Box>
+
+              {/* Section 3: Items & Vehicle */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  ITEMS & VEHICLE
+                </Typography>
+                <Grid container spacing={0.5}>
+                  {[
+                    ['Vehicle No.', selectedPass.vehicleNumber],
+                    ['Items Carrying', selectedPass.itemsCarrying],
+                    ['Serial No.', selectedPass.serialNumber],
+                    ['Make / Brand', selectedPass.make],
+                  ].map(([key, val]) => (
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              {/* Section 4: Requested By */}
+              <Box mb={2}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  REQUESTED BY
+                </Typography>
+                <Typography variant="body2"><strong>Name:</strong> {selectedPass.user?.name || '—'}</Typography>
+                <Typography variant="body2"><strong>Email:</strong> {selectedPass.user?.email || '—'}</Typography>
+                {selectedPass.outTime && (
+                  <Typography variant="body2"><strong>Out Time:</strong> {dayjs(selectedPass.outTime).format('DD MMM YYYY, HH:mm')}</Typography>
+                )}
+              </Box>
+
+              {/* Signatures */}
+              <Box mt={3} display="flex" justifyContent="space-between">
+                {['Visitor Signature', 'Security Signature', 'Authorized Signatory'].map((label) => (
                   <Box key={label} textAlign="center">
-                    <Typography>_________________</Typography>
+                    <Typography>_______________</Typography>
                     <Typography variant="caption">{label}</Typography>
                   </Box>
                 ))}

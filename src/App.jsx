@@ -5,7 +5,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Login from './pages/Login';
-import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreatePass from './pages/CreatePass';
 import AdminDashboard from './pages/AdminDashboard';
@@ -30,11 +29,10 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Layout>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             
             <Route path="/dashboard" element={
               <ProtectedRoute>

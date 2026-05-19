@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Select, MenuItem,
   FormControl, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip
+  IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip, TextField
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
@@ -62,6 +62,9 @@ const AdminDashboard = () => {
   const [selectedPass, setSelectedPass] = useState(null);
   const [printOpen, setPrintOpen] = useState(false);
   const [stats, setStats] = useState({ totalVisitors: 0, todayVisitors: 0, pendingRequests: 0, approvedPasses: 0, rejectedPasses: 0 });
+  const [createUserOpen, setCreateUserOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
+  const [createdUser, setCreatedUser] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -110,6 +113,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateUser = async () => {
+    try {
+      await axios.post('/api/admin/users', newUser);
+      toast.success('User created successfully');
+      setCreatedUser({ email: newUser.email, password: newUser.password });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error creating user');
+    }
+  };
+
+  const handleCloseCreateUser = () => {
+    setCreateUserOpen(false);
+    setCreatedUser(null);
+    setNewUser({ name: '', email: '', password: '', role: 'user' });
+  };
+
   const statConfig = [
     { icon: <PeopleAltIcon sx={{ color: '#1976d2', fontSize: 24 }} />, label: 'Total Visitors', value: stats.totalVisitors, color: '#1976d2', bgColor: '#dbeafe' },
     { icon: <TodayIcon sx={{ color: '#7c3aed', fontSize: 24 }} />, label: "Today's Visitors", value: stats.todayVisitors, color: '#7c3aed', bgColor: '#ede9fe' },
@@ -131,23 +150,39 @@ const AdminDashboard = () => {
               Manage all visitor gate pass requests
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<DownloadIcon />}
-            onClick={handleExport}
-            sx={{
-              textTransform: 'none', borderRadius: '10px',
-              fontWeight: 700, px: 2.5, py: 1,
-              background: 'linear-gradient(135deg, #16a34a, #15803d)',
-              boxShadow: '0 4px 16px rgba(22,163,74,0.3)',
-              '&:hover': { background: 'linear-gradient(135deg, #15803d, #166534)', boxShadow: '0 6px 20px rgba(22,163,74,0.4)', transform: 'translateY(-1px)' },
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap',
-              alignSelf: { xs: 'flex-start', sm: 'auto' },
-            }}
-          >
-            Export Excel
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1.5, alignSelf: { xs: 'flex-start', sm: 'auto' } }}>
+            <Button
+              variant="contained"
+              onClick={() => setCreateUserOpen(true)}
+              sx={{
+                textTransform: 'none', borderRadius: '10px',
+                fontWeight: 700, px: 2.5, py: 1,
+                background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
+                boxShadow: '0 4px 16px rgba(25,118,210,0.3)',
+                '&:hover': { background: 'linear-gradient(135deg, #1565c0, #6d28d9)', boxShadow: '0 6px 20px rgba(25,118,210,0.4)', transform: 'translateY(-1px)' },
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              + Create User
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              onClick={handleExport}
+              sx={{
+                textTransform: 'none', borderRadius: '10px',
+                fontWeight: 700, px: 2.5, py: 1,
+                background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                boxShadow: '0 4px 16px rgba(22,163,74,0.3)',
+                '&:hover': { background: 'linear-gradient(135deg, #15803d, #166534)', boxShadow: '0 6px 20px rgba(22,163,74,0.4)', transform: 'translateY(-1px)' },
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Export Excel
+            </Button>
+          </Box>
         </Box>
       </motion.div>
 
@@ -286,7 +321,7 @@ const AdminDashboard = () => {
       <Dialog
         open={printOpen}
         onClose={() => setPrintOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
         fullScreen={isMobile}
         PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
@@ -300,39 +335,116 @@ const AdminDashboard = () => {
         <DialogContent dividers id="printable-area">
           {selectedPass && (
             <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              <Box textAlign="center" mb={2} pb={1.5} sx={{ borderBottom: '1px solid #0f172a' }}>
+              {/* Header */}
+              <Box textAlign="center" mb={2} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
                 <Typography variant="h5" fontWeight={800}>Company Name Ltd.</Typography>
-                <Typography variant="subtitle2" color="text.secondary">Visitor Gate Pass</Typography>
+                <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
+                <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
               </Box>
-              <Grid container spacing={2}>
-                <Grid item xs={8}>
+
+              {/* Photo + Status row */}
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                <Box>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', px: 1.5, py: 0.5, borderRadius: 1, border: '1px solid #0f172a' }}>
+                    <Typography variant="body2" fontWeight={700}>Status: {selectedPass.status}</Typography>
+                  </Box>
+                </Box>
+                {selectedPass.visitorPhoto ? (
+                  <Box textAlign="center">
+                    <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc' }} />
+                    <Typography variant="caption" display="block">Visitor Photo</Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ width: 90, height: 90, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="caption" color="text.secondary">No Photo</Typography>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Section 1: Visit Info */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  VISIT INFORMATION
+                </Typography>
+                <Grid container spacing={0.5}>
                   {[
-                    ['GP Number', selectedPass.gatePassNumber],
-                    ['Date', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
-                    ['Visitor Name', selectedPass.visitorName],
-                    ['Company', selectedPass.companyName],
-                    ['Mobile', selectedPass.mobileNumber],
+                    ['Date & Time', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
+                    ['Unit', selectedPass.unit],
+                    ['Visit Type', selectedPass.visitType],
                     ['Purpose', selectedPass.purpose],
                     ['Person to Meet', selectedPass.personToMeet],
+                    ['Department', selectedPass.department],
                   ].map(([key, val]) => (
-                    <Typography key={key} variant="body2" sx={{ mb: 0.5 }}>
-                      <strong>{key}:</strong> {val}
-                    </Typography>
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
                   ))}
                 </Grid>
-                <Grid item xs={4} textAlign="right">
-                  {selectedPass.qrCode && (
-                    <img src={selectedPass.qrCode} alt="QR Code" style={{ width: 90, height: 90 }} />
-                  )}
-                  {selectedPass.visitorPhoto && (
-                    <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 80, height: 80, marginTop: 8, objectFit: 'cover', borderRadius: 4 }} />
-                  )}
+              </Box>
+
+              {/* Section 2: Visitor Info */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  VISITOR DETAILS
+                </Typography>
+                <Grid container spacing={0.5}>
+                  {[
+                    ['Visitor Name', selectedPass.visitorName],
+                    ['Mobile No.', selectedPass.mobileNumber],
+                    ['Company', selectedPass.companyName],
+                    ['No. of Persons', selectedPass.numberOfPersons],
+                    ['ID Proof Type', selectedPass.idProofType],
+                    ['ID Number', selectedPass.idNumber],
+                  ].map(([key, val]) => (
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
+                  ))}
                 </Grid>
-              </Grid>
-              <Box mt={4} display="flex" justifyContent="space-between">
-                {['Visitor Signature', 'Authorized Signatory'].map((label) => (
+              </Box>
+
+              {/* Section 3: Items & Vehicle */}
+              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  ITEMS & VEHICLE
+                </Typography>
+                <Grid container spacing={0.5}>
+                  {[
+                    ['Vehicle No.', selectedPass.vehicleNumber],
+                    ['Items Carrying', selectedPass.itemsCarrying],
+                    ['Serial No.', selectedPass.serialNumber],
+                    ['Make / Brand', selectedPass.make],
+                  ].map(([key, val]) => (
+                    <Grid item xs={6} key={key}>
+                      <Typography variant="body2" sx={{ mb: 0.3 }}>
+                        <strong>{key}:</strong> {val || '—'}
+                      </Typography>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              {/* Section 4: Requested By */}
+              <Box mb={2}>
+                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
+                  REQUESTED BY
+                </Typography>
+                <Typography variant="body2"><strong>Name:</strong> {selectedPass.user?.name || '—'}</Typography>
+                <Typography variant="body2"><strong>Email:</strong> {selectedPass.user?.email || '—'}</Typography>
+                {selectedPass.outTime && (
+                  <Typography variant="body2"><strong>Out Time:</strong> {dayjs(selectedPass.outTime).format('DD MMM YYYY, HH:mm')}</Typography>
+                )}
+              </Box>
+
+              {/* Signatures */}
+              <Box mt={3} display="flex" justifyContent="space-between">
+                {['Visitor Signature', 'Security Signature', 'Authorized Signatory'].map((label) => (
                   <Box key={label} textAlign="center">
-                    <Typography>_________________</Typography>
+                    <Typography>_______________</Typography>
                     <Typography variant="caption">{label}</Typography>
                   </Box>
                 ))}
@@ -355,6 +467,106 @@ const AdminDashboard = () => {
           >
             Print Pass
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog
+        open={createUserOpen}
+        onClose={handleCloseCreateUser}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography fontWeight={700}>Create New User</Typography>
+          <IconButton onClick={handleCloseCreateUser} size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {createdUser ? (
+            <Box textAlign="center" py={2}>
+              <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 48, mb: 1 }} />
+              <Typography variant="h6" fontWeight={700} gutterBottom>User Created Successfully!</Typography>
+              <Typography variant="body2" color="text.secondary" mb={3}>
+                Please copy these credentials and share them with the user. They will not be shown again.
+              </Typography>
+              <Box sx={{ bgcolor: '#f8fafc', p: 2, borderRadius: 2, border: '1px solid #e2e8f0', textAlign: 'left' }}>
+                <Typography variant="body2" sx={{ mb: 1 }}><strong>User ID (Email):</strong> {createdUser.email}</Typography>
+                <Typography variant="body2"><strong>Password:</strong> {createdUser.password}</Typography>
+              </Box>
+              <Button
+                variant="outlined"
+                sx={{ mt: 3, textTransform: 'none', borderRadius: '8px' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(`User ID: ${createdUser.email}\nPassword: ${createdUser.password}`);
+                  toast.success('Credentials copied to clipboard');
+                }}
+              >
+                Copy Credentials
+              </Button>
+            </Box>
+          ) : (
+            <Box display="flex" flexDirection="column" gap={2} pt={1}>
+              <TextField
+                label="Full Name"
+                fullWidth
+                size="small"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              />
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                size="small"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+              />
+              <TextField
+                label="Password"
+                type="text"
+                fullWidth
+                size="small"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+              />
+              <FormControl fullWidth size="small">
+                <Select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                >
+                  <MenuItem value="user">User</MenuItem>
+                  <MenuItem value="admin">Admin</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          {createdUser ? (
+            <Button onClick={handleCloseCreateUser} variant="contained" sx={{ textTransform: 'none', borderRadius: '8px' }}>
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button onClick={handleCloseCreateUser} sx={{ textTransform: 'none' }}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateUser}
+                variant="contained"
+                disabled={!newUser.name || !newUser.email || !newUser.password}
+                sx={{
+                  textTransform: 'none', borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
+                }}
+              >
+                Create User
+              </Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
     </Box>
