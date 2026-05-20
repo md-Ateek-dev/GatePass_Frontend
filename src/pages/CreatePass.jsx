@@ -5,7 +5,8 @@ import axios from 'axios';
 import {
   Box, Typography, Grid, TextField, MenuItem,
   Button, IconButton, CircularProgress, Divider, Paper, Chip,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Checkbox, FormControlLabel
 } from '@mui/material';
 import Webcam from 'react-webcam';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
@@ -59,6 +60,8 @@ const CreatePass = () => {
   const [photoFile, setPhotoFile] = useState(null);
   const [cameraMode, setCameraMode] = useState(null);
   const webcamRef = useRef(null);
+  const isSubmittingRef = useRef(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const capturePhoto = useCallback(() => {
     if (webcamRef.current) {
@@ -87,10 +90,19 @@ const CreatePass = () => {
   const removePhoto = () => { setPhotoFile(null); setPhotoPreview(null); };
 
   const onSubmit = async (data) => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       const formData = new FormData();
-      Object.keys(data).forEach(key => formData.append(key, data[key]));
+      Object.keys(data).forEach(key => {
+        if (key !== 'itemsCarrying') {
+          formData.append(key, data[key]);
+        }
+      });
+      const itemsString = selectedItems.join(', ') || 'None';
+      formData.append('itemsCarrying', itemsString);
+
       if (photoFile) formData.append('visitorPhoto', photoFile);
       await axios.post('/api/gatepass', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -101,6 +113,7 @@ const CreatePass = () => {
       toast.error(error.response?.data?.message || 'Error creating pass');
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -240,7 +253,12 @@ const CreatePass = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth label="Visitor Name"
-                    {...register('visitorName', { required: 'Name is required' })}
+                    placeholder="Enter full name"
+                    {...register('visitorName', {
+                      required: 'Visitor name is required',
+                      minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                      pattern: { value: /^[a-zA-Z\s.'-]+$/, message: 'Only letters and spaces allowed' },
+                    })}
                     error={!!errors.visitorName} helperText={errors.visitorName?.message}
                     sx={fieldSx}
                   />
@@ -248,7 +266,12 @@ const CreatePass = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth label="Mobile Number"
-                    {...register('mobileNumber', { required: 'Mobile is required' })}
+                    placeholder="10-digit mobile number"
+                    inputProps={{ maxLength: 10, inputMode: 'numeric' }}
+                    {...register('mobileNumber', {
+                      required: 'Mobile number is required',
+                      pattern: { value: /^[6-9][0-9]{9}$/, message: 'Enter a valid 10-digit mobile number (starts with 6-9)' },
+                    })}
                     error={!!errors.mobileNumber} helperText={errors.mobileNumber?.message}
                     sx={fieldSx}
                   />
@@ -256,7 +279,11 @@ const CreatePass = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth label="Company Name"
-                    {...register('companyName', { required: 'Company is required' })}
+                    placeholder="Organisation or company name"
+                    {...register('companyName', {
+                      required: 'Company name is required',
+                      minLength: { value: 2, message: 'Must be at least 2 characters' },
+                    })}
                     error={!!errors.companyName} helperText={errors.companyName?.message}
                     sx={fieldSx}
                   />
@@ -264,28 +291,37 @@ const CreatePass = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth type="number" label="Number of Persons" defaultValue={1}
-                    {...register('numberOfPersons', { required: true, min: 1 })}
+                    inputProps={{ min: 1, max: 100 }}
+                    {...register('numberOfPersons', {
+                      required: 'Required',
+                      min: { value: 1, message: 'Must be at least 1 person' },
+                      max: { value: 100, message: 'Maximum 100 persons' },
+                    })}
                     error={!!errors.numberOfPersons}
-                    helperText={errors.numberOfPersons ? 'Must be at least 1' : ''}
+                    helperText={errors.numberOfPersons?.message || ''}
                     sx={fieldSx}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth select label="ID Proof Type" defaultValue=""
-                    {...register('idProofType', { required: 'ID Proof is required' })}
+                    {...register('idProofType', { required: 'Please select an ID proof type' })}
                     error={!!errors.idProofType} helperText={errors.idProofType?.message}
                     sx={fieldSx}
                   >
-                    <MenuItem value="Aadhaar">Aadhaar</MenuItem>
-                    <MenuItem value="PAN">PAN</MenuItem>
+                    <MenuItem value="Aadhaar">Aadhaar Card</MenuItem>
+                    <MenuItem value="PAN">PAN Card</MenuItem>
                     <MenuItem value="Company ID">Company ID</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth label="ID Number"
-                    {...register('idNumber', { required: 'ID Number is required' })}
+                    placeholder="Enter ID number"
+                    {...register('idNumber', {
+                      required: 'ID number is required',
+                      minLength: { value: 4, message: 'ID number too short' },
+                    })}
                     error={!!errors.idNumber} helperText={errors.idNumber?.message}
                     sx={fieldSx}
                   />
@@ -316,18 +352,41 @@ const CreatePass = () => {
                   <TextField fullWidth label="Vehicle Number" {...register('vehicleNumber')} sx={fieldSx} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField 
-                    fullWidth select label="Items Carrying" defaultValue="" 
-                    {...register('itemsCarrying')} 
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="None">None</MenuItem>
-                    <MenuItem value="USB">USB</MenuItem>
-                    <MenuItem value="Pen Drive">Pen Drive</MenuItem>
-                    <MenuItem value="Laptop">Laptop</MenuItem>
-                    <MenuItem value="Mobile">Mobile</MenuItem>
-                    <MenuItem value="Documents">Documents</MenuItem>
-                  </TextField>
+                  <Typography variant="body2" fontWeight={600} sx={{ color: '#475569', mb: 1 }}>
+                    Items Carrying (Select all that apply)
+                  </Typography>
+                  <Grid container spacing={0.5}>
+                    {['Laptop', 'Mobile', 'USB', 'Pen Drive', 'Documents'].map((item) => (
+                      <Grid item xs={6} key={item}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={selectedItems.includes(item)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedItems([...selectedItems, item]);
+                                } else {
+                                  setSelectedItems(selectedItems.filter((i) => i !== item));
+                                }
+                              }}
+                              color="primary"
+                              sx={{
+                                color: '#cbd5e1',
+                                '&.Mui-checked': {
+                                  color: '#1976d2',
+                                },
+                              }}
+                            />
+                          }
+                          label={
+                            <Typography variant="body2" fontWeight={500} sx={{ color: '#334155' }}>
+                              {item}
+                            </Typography>
+                          }
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField fullWidth label="Serial Number" {...register('serialNumber')} sx={fieldSx} />

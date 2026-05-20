@@ -247,30 +247,25 @@ const Dashboard = () => {
         <DialogContent dividers id="printable-area">
           {selectedPass && (
             <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              {/* Header */}
-              <Box textAlign="center" mb={2} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
-                <Typography variant="h5" fontWeight={800}>Company Name Ltd.</Typography>
-                <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
-                <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
-              </Box>
-
-              {/* Photo + Status row */}
-              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                <Box>
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', px: 1.5, py: 0.5, borderRadius: 1, border: '1px solid #0f172a' }}>
-                    <Typography variant="body2" fontWeight={700}>Status: {selectedPass.status}</Typography>
-                  </Box>
+              {/* Header with photo */}
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
+                <Box textAlign="center" flex={1}>
+                  <Typography variant="h5" fontWeight={800}>Company Name Ltd.</Typography>
+                  <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
+                  <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
                 </Box>
-                {selectedPass.visitorPhoto ? (
-                  <Box textAlign="center">
-                    <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc' }} />
-                    <Typography variant="caption" display="block">Visitor Photo</Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ width: 90, height: 90, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="caption" color="text.secondary">No Photo</Typography>
-                  </Box>
-                )}
+                <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
+                  {selectedPass.visitorPhoto ? (
+                    <>
+                      <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }} />
+                      <Typography variant="caption" display="block">Visitor Photo</Typography>
+                    </>
+                  ) : (
+                    <Box sx={{ width: 80, height: 80, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography variant="caption" color="text.secondary">No Photo</Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
 
               {/* Section 1: Visit Info */}
