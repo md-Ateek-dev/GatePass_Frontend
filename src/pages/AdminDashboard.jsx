@@ -22,7 +22,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const StatCard = ({ icon, label, value, color, bgColor }) => (
   <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
@@ -108,6 +108,22 @@ const AdminDashboard = () => {
 
   const handlePrintOpen = (pass) => { setSelectedPass(pass); setPrintOpen(true); };
   const handlePrint = () => window.print();
+
+  const [qrDataUrl, setQrDataUrl] = useState('');
+
+  useEffect(() => {
+    if (printOpen && selectedPass) {
+      const timer = setTimeout(() => {
+        const canvas = document.getElementById('admin-qr-canvas');
+        if (canvas) {
+          try { setQrDataUrl(canvas.toDataURL('image/png')); } catch(e) { console.error(e); }
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      setQrDataUrl('');
+    }
+  }, [printOpen, selectedPass]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -534,6 +550,13 @@ const AdminDashboard = () => {
         </motion.div>
       )}
 
+      {/* Hidden QR Canvas for print data URL generation */}
+      {printOpen && selectedPass && (
+        <div style={{ position: 'fixed', left: '-9999px', top: '-9999px', width: 0, height: 0, overflow: 'hidden' }}>
+          <QRCodeCanvas id="admin-qr-canvas" value={`${window.location.origin}/scan/${selectedPass._id}`} size={200} level="H" />
+        </div>
+      )}
+
       {/* Print Dialog */}
       <Dialog
         open={printOpen}
@@ -556,11 +579,11 @@ const AdminDashboard = () => {
               <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
                 <Box textAlign="center" sx={{ mr: 2, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <Box sx={{ width: 80, height: 80, display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 0.5, bgcolor: '#ffffff', p: 0.5, borderRadius: 1, border: '1px solid #e2e8f0' }}>
-                    <QRCodeSVG
-                      value={`${window.location.origin}/scan/${selectedPass._id}`}
-                      size={70}
-                      level={"H"}
-                    />
+                    {qrDataUrl ? (
+                      <img src={qrDataUrl} alt="QR Code" style={{ width: 70, height: 70, display: 'block' }} />
+                    ) : (
+                      <Typography variant="caption" color="text.secondary">Loading QR...</Typography>
+                    )}
                   </Box>
                   <Typography variant="caption" display="block">Scan Entry/Exit</Typography>
                 </Box>
