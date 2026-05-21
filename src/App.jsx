@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CreatePass from './pages/CreatePass';
 import AdminDashboard from './pages/AdminDashboard';
+import ScanPass from './pages/ScanPass';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -33,6 +34,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/scan/:id" element={<ScanPass />} />
             
             <Route path="/dashboard" element={
               <ProtectedRoute>

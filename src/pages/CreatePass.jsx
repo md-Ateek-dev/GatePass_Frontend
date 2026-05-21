@@ -155,7 +155,7 @@ const CreatePass = () => {
       <motion.div variants={containerVariants} initial="hidden" animate="show">
         <form onSubmit={handleSubmit(onSubmit)}>
 
-          {/* ─── Section 1: Visit Details ─── */}
+          {/* ─── Section 1: Visitor Details ─── */}
           <motion.div variants={itemVariants}>
             <Paper
               elevation={0}
@@ -166,7 +166,7 @@ const CreatePass = () => {
             >
               <SectionHeader
                 icon={<InfoOutlinedIcon sx={{ color: 'white', fontSize: 18 }} />}
-                title="Visit Details"
+                title="Visitor Details"
                 subtitle="Date, unit, type and purpose of visit"
               />
               <Grid container spacing={2.5}>

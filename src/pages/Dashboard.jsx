@@ -8,8 +8,8 @@ import {
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
@@ -79,12 +79,12 @@ const Dashboard = () => {
   };
 
   const getStatusBg = (status) => {
-    const map = { Approved: '#dcfce7', Rejected: '#fee2e2', Pending: '#fef3c7', 'Checked Out': '#f1f5f9' };
+    const map = { Approved: '#dcfce7', Rejected: '#fee2e2', Pending: '#fef3c7', 'Checked In': '#e0f2fe', 'Checked Out': '#f1f5f9' };
     return map[status] || '#f1f5f9';
   };
 
   const getStatusTextColor = (status) => {
-    const map = { Approved: '#16a34a', Rejected: '#dc2626', Pending: '#d97706', 'Checked Out': '#64748b' };
+    const map = { Approved: '#16a34a', Rejected: '#dc2626', Pending: '#d97706', 'Checked In': '#0284c7', 'Checked Out': '#64748b' };
     return map[status] || '#64748b';
   };
 
@@ -111,14 +111,14 @@ const Dashboard = () => {
             color: '#1976d2', bgColor: '#dbeafe',
           },
           {
-            icon: <PendingActionsIcon sx={{ color: '#d97706', fontSize: 24 }} />,
-            label: 'Pending', value: passes.filter(p => p.status === 'Pending').length,
-            color: '#d97706', bgColor: '#fef3c7',
+            icon: <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 24 }} />,
+            label: 'Currently Inside', value: passes.filter(p => p.status === 'Checked In').length,
+            color: '#16a34a', bgColor: '#dcfce7',
           },
           {
-            icon: <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 24 }} />,
-            label: 'Approved', value: passes.filter(p => p.status === 'Approved').length,
-            color: '#16a34a', bgColor: '#dcfce7',
+            icon: <ExitToAppIcon sx={{ color: '#64748b', fontSize: 24 }} />,
+            label: 'Checked Out', value: passes.filter(p => p.status === 'Checked Out').length,
+            color: '#64748b', bgColor: '#f1f5f9',
           },
         ].map((stat, i) => (
           <Grid item xs={12} sm={4} key={i}>
@@ -182,32 +182,41 @@ const Dashboard = () => {
                       {pass.companyName}
                     </TableCell>
                     <TableCell>
-                      <Box
-                        sx={{
-                          display: 'inline-flex', alignItems: 'center', px: 1.2, py: 0.4,
-                          borderRadius: '6px', bgcolor: getStatusBg(pass.status),
-                          color: getStatusTextColor(pass.status),
-                          fontSize: '0.72rem', fontWeight: 700,
-                        }}
-                      >
-                        {pass.status}
-                      </Box>
+                      {pass.status === 'Checked In' ? (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <span className="pulsing-dot" />
+                          <Typography variant="body2" fontWeight={800} color="#ef4444" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
+                            INSIDE CAMPUS
+                          </Typography>
+                        </Box>
+                      ) : pass.status === 'Checked Out' ? (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <span className="static-dot-green" />
+                          <Typography variant="body2" fontWeight={800} color="#10b981" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
+                            LEFT CAMPUS
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <span className="static-dot-blue" />
+                          <Typography variant="body2" fontWeight={800} color="#2563eb" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
+                            EXPECTED / READY
+                          </Typography>
+                        </Box>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Button
                         startIcon={<PrintIcon fontSize="small" />}
                         size="small"
-                        variant={pass.status === 'Approved' ? 'contained' : 'outlined'}
+                        variant="contained"
                         onClick={() => handlePrintOpen(pass)}
-                        disabled={pass.status !== 'Approved'}
                         sx={{
                           borderRadius: '8px', textTransform: 'none',
                           fontSize: '0.75rem', fontWeight: 600,
                           py: 0.5, px: 1.5,
-                          ...(pass.status === 'Approved' && {
-                            background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
-                            '&:hover': { background: 'linear-gradient(135deg, #1976d2, #6d28d9)' },
-                          }),
+                          background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
+                          '&:hover': { background: 'linear-gradient(135deg, #1976d2, #6d28d9)' },
                         }}
                       >
                         Print
@@ -247,17 +256,29 @@ const Dashboard = () => {
         <DialogContent dividers id="printable-area">
           {selectedPass && (
             <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              {/* Header with photo */}
+              {/* Header with QR and photo */}
               <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
+                <Box textAlign="center" sx={{ mr: 2, flexShrink: 0 }}>
+                  <img
+                    src={`https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(`${window.location.origin}/scan/${selectedPass._id}`)}&choe=UTF-8`}
+                    alt="Scan QR"
+                    style={{ width: 80, height: 80, display: 'block' }}
+                  />
+                  <Typography variant="caption" display="block">Scan Entry/Exit</Typography>
+                </Box>
                 <Box textAlign="center" flex={1}>
-                  <Typography variant="h5" fontWeight={800}>Company Name Ltd.</Typography>
+                  <Typography variant="h5" fontWeight={800}>Raj Goli</Typography>
                   <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
                   <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
                 </Box>
                 <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
                   {selectedPass.visitorPhoto ? (
                     <>
-                      <img src={selectedPass.visitorPhoto} alt="Visitor" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }} />
+                      <img
+                        src={selectedPass.visitorPhoto.startsWith('http') || selectedPass.visitorPhoto.startsWith('/') ? selectedPass.visitorPhoto : `/${selectedPass.visitorPhoto}`}
+                        alt="Visitor"
+                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }}
+                      />
                       <Typography variant="caption" display="block">Visitor Photo</Typography>
                     </>
                   ) : (
@@ -271,7 +292,7 @@ const Dashboard = () => {
               {/* Section 1: Visit Info */}
               <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
                 <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  VISIT INFORMATION
+                  VISITOR INFORMATION
                 </Typography>
                 <Grid container spacing={0.5}>
                   {[
@@ -336,7 +357,7 @@ const Dashboard = () => {
               </Box>
 
               {/* Section 4: Requested By */}
-              <Box mb={2}>
+              {/* <Box mb={2}>
                 <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
                   REQUESTED BY
                 </Typography>
@@ -345,17 +366,17 @@ const Dashboard = () => {
                 {selectedPass.outTime && (
                   <Typography variant="body2"><strong>Out Time:</strong> {dayjs(selectedPass.outTime).format('DD MMM YYYY, HH:mm')}</Typography>
                 )}
-              </Box>
+              </Box> */}
 
               {/* Signatures */}
-              <Box mt={3} display="flex" justifyContent="space-between">
+              {/* <Box mt={3} display="flex" justifyContent="space-between">
                 {['Visitor Signature', 'Security Signature', 'Authorized Signatory'].map((label) => (
                   <Box key={label} textAlign="center">
                     <Typography>_______________</Typography>
                     <Typography variant="caption">{label}</Typography>
                   </Box>
                 ))}
-              </Box>
+              </Box> */}
             </Box>
           )}
         </DialogContent>
