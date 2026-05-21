@@ -17,6 +17,7 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TimeToLeaveIcon from '@mui/icons-material/TimeToLeave';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
+import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
 
 const ScanPass = () => {
   const { id } = useParams();
@@ -147,9 +148,9 @@ const ScanPass = () => {
 
             {/* Photo & Main Details */}
             <Box display="flex" flexDirection="column" alignItems="center" mb={4}>
-              {pass.visitorPhoto ? (
+              {getVisitorPhotoUrl(pass.visitorPhoto) ? (
                 <Avatar
-                  src={pass.visitorPhoto}
+                  src={getVisitorPhotoUrl(pass.visitorPhoto)}
                   alt="Visitor"
                   sx={{ width: 130, height: 130, border: '4px solid #f1f5f9', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', mb: 2 }}
                 />

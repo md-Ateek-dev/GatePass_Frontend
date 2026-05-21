@@ -23,6 +23,8 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
+import { toast } from 'react-toastify';
+import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
 
 const StatCard = ({ icon, label, value, color, bgColor }) => (
   <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
@@ -593,11 +595,12 @@ const AdminDashboard = () => {
                   <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
                 </Box>
                 <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
-                  {selectedPass.visitorPhoto ? (
+                  {getVisitorPhotoUrl(selectedPass.visitorPhoto) ? (
                     <>
                       <img
-                        src={selectedPass.visitorPhoto.startsWith('http') || selectedPass.visitorPhoto.startsWith('/') ? selectedPass.visitorPhoto : `/${selectedPass.visitorPhoto}`}
+                        src={getVisitorPhotoUrl(selectedPass.visitorPhoto)}
                         alt="Visitor"
+                        crossOrigin="anonymous"
                         style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }}
                       />
                       <Typography variant="caption" display="block">Visitor Photo</Typography>
