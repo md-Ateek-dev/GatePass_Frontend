@@ -12,6 +12,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import BadgeIcon from '@mui/icons-material/Badge';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import DeveloperCredit from '../components/DeveloperCredit';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -203,10 +204,7 @@ const Login = () => {
           </Box>
         </Box>
 
-        {/* Footer credit */}
-        <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 2, color: 'rgba(255,255,255,0.4)' }}>
-          Developed by Mohd Ateek • ateek.netlify.app
-        </Typography>
+        <DeveloperCredit variant="dark" sx={{ mt: 2, pt: 2, borderTop: 'none' }} />
       </motion.div>
     </Box>
   );

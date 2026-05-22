@@ -17,6 +17,7 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import DeveloperCredit from '../components/DeveloperCredit';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -552,6 +553,9 @@ const CreatePass = () => {
 
         </form>
       </motion.div>
+
+      <DeveloperCredit />
+
       <Dialog open={!!cameraMode} onClose={() => setCameraMode(null)} maxWidth="sm" fullWidth>
         <DialogTitle>Take Photo</DialogTitle>
         <DialogContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 0, bgcolor: '#000', minHeight: 300 }}>

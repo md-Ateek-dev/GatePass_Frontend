@@ -353,11 +353,14 @@ const AdminDashboard = () => {
                                 INSIDE CAMPUS
                               </Typography>
                             </Box>
-                            {pass.checkInTime && (
-                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                                In: {dayjs(pass.checkInTime).format('hh:mm A')}
+                            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
+                                In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
                               </Typography>
-                            )}
+                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
+                                Out: —
+                              </Typography>
+                            </Box>
                           </Box>
                         ) : pass.status === 'Checked Out' ? (
                           <Box display="flex" flexDirection="column" gap={0.5}>
@@ -367,11 +370,26 @@ const AdminDashboard = () => {
                                 LEFT CAMPUS
                               </Typography>
                             </Box>
-                            {pass.outTime && (
-                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                                Out: {dayjs(pass.outTime).format('hh:mm A')}
-                              </Typography>
-                            )}
+                            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+                              {pass.checkInTime ? (
+                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
+                                  In: {dayjs(pass.checkInTime).format('hh:mm A')}
+                                </Typography>
+                              ) : (
+                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
+                                  In: —
+                                </Typography>
+                              )}
+                              {pass.outTime ? (
+                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b' }}>
+                                  Out: {dayjs(pass.outTime).format('hh:mm A')}
+                                </Typography>
+                              ) : (
+                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
+                                  Out: —
+                                </Typography>
+                              )}
+                            </Box>
                           </Box>
                         ) : (
                           <Box display="flex" flexDirection="column" gap={0.5}>
