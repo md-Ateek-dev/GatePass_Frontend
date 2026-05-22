@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Select, MenuItem,
   FormControl, Dialog, DialogTitle, DialogContent, DialogActions,
   IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip, TextField,
-  Tabs, Tab
+  Tabs, Tab, InputAdornment
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,6 +21,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -76,8 +79,47 @@ const AdminDashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const [users, setUsers] = useState([]);
   const [showPasswords, setShowPasswords] = useState({});
+  const [gpSearch, setGpSearch] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showPasswordFields, setShowPasswordFields] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const filteredPasses = useMemo(() => {
+    const q = gpSearch.trim().toLowerCase();
+    if (!q) return passes;
+    return passes.filter((p) => p.gatePassNumber?.toLowerCase().includes(q));
+  }, [passes, gpSearch]);
+
+  const filteredUsers = useMemo(() => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(
+      (u) =>
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q)
+    );
+  }, [users, userSearch]);
+
+  const searchFieldSx = {
+    minWidth: { xs: '100%', sm: 280 },
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '10px',
+      bgcolor: '#f8fafc',
+      fontSize: '0.875rem',
+    },
+  };
 
   const fetchData = async () => {
     try {
@@ -202,6 +244,42 @@ const AdminDashboard = () => {
     fetchUsers();
   };
 
+  const handleCloseChangePassword = () => {
+    setChangePasswordOpen(false);
+    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setShowPasswordFields({ current: false, new: false, confirm: false });
+  };
+
+  const handleChangePassword = async () => {
+    const { currentPassword, newPassword, confirmPassword } = passwordForm;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error('Please fill all password fields');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('New password and confirm password do not match');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await axios.put('/api/auth/password', { currentPassword, newPassword });
+      toast.success('Password changed successfully');
+      handleCloseChangePassword();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const statConfig = [
     { icon: <PeopleAltIcon sx={{ color: '#1976d2', fontSize: 24 }} />, label: 'Total Passes', value: stats.totalVisitors || 0, color: '#1976d2', bgColor: '#dbeafe' },
     { icon: <TodayIcon sx={{ color: '#7c3aed', fontSize: 24 }} />, label: "Today's Passes", value: stats.todayVisitors || 0, color: '#7c3aed', bgColor: '#ede9fe' },
@@ -222,7 +300,21 @@ const AdminDashboard = () => {
               Manage all visitor gate pass requests
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1.5, alignSelf: { xs: 'flex-start', sm: 'auto' } }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignSelf: { xs: 'flex-start', sm: 'auto' }, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              startIcon={<VpnKeyIcon />}
+              onClick={() => setChangePasswordOpen(true)}
+              sx={{
+                textTransform: 'none', borderRadius: '10px',
+                fontWeight: 700, px: 2, py: 1,
+                borderColor: '#cbd5e1', color: '#475569',
+                '&:hover': { borderColor: '#1976d2', color: '#1976d2', bgcolor: '#eff6ff' },
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Change Password
+            </Button>
             <Button
               variant="contained"
               onClick={() => setCreateUserOpen(true)}
@@ -301,10 +393,35 @@ const AdminDashboard = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
             }}
           >
-            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                p: { xs: 2, sm: 3 },
+                borderBottom: '1px solid #f1f5f9',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'stretch', sm: 'center' },
+                justifyContent: 'space-between',
+                gap: 2,
+              }}
+            >
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Requests ({passes.length})
+                All Requests ({filteredPasses.length}
+                {gpSearch.trim() ? ` of ${passes.length}` : ''})
               </Typography>
+              <TextField
+                size="small"
+                placeholder="Search by GP number..."
+                value={gpSearch}
+                onChange={(e) => setGpSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={searchFieldSx}
+              />
             </Box>
 
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -319,7 +436,7 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {passes.map((pass, idx) => (
+                  {filteredPasses.map((pass, idx) => (
                     <TableRow
                       key={pass._id}
                       component={motion.tr}
@@ -444,11 +561,15 @@ const AdminDashboard = () => {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {passes.length === 0 && (
+                  {filteredPasses.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <PeopleAltIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
-                        <Typography variant="body2">No gate pass requests found</Typography>
+                        <Typography variant="body2">
+                          {passes.length === 0
+                            ? 'No gate pass requests found'
+                            : `No gate pass matching "${gpSearch.trim()}"`}
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
@@ -467,10 +588,35 @@ const AdminDashboard = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
             }}
           >
-            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9' }}>
+            <Box
+              sx={{
+                p: { xs: 2, sm: 3 },
+                borderBottom: '1px solid #f1f5f9',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'stretch', sm: 'center' },
+                justifyContent: 'space-between',
+                gap: 2,
+              }}
+            >
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Registered Users ({users.length})
+                All Registered Users ({filteredUsers.length}
+                {userSearch.trim() ? ` of ${users.length}` : ''})
               </Typography>
+              <TextField
+                size="small"
+                placeholder="Search by name or email..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={searchFieldSx}
+              />
             </Box>
 
             <TableContainer sx={{ overflowX: 'auto' }}>
@@ -485,7 +631,7 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.map((user, idx) => (
+                  {filteredUsers.map((user, idx) => (
                     <TableRow
                       key={user._id}
                       component={motion.tr}
@@ -556,10 +702,14 @@ const AdminDashboard = () => {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {users.length === 0 && (
+                  {filteredUsers.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                        <Typography variant="body2">No registered users found</Typography>
+                        <Typography variant="body2">
+                          {users.length === 0
+                            ? 'No registered users found'
+                            : `No user matching "${userSearch.trim()}"`}
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
@@ -837,6 +987,81 @@ const AdminDashboard = () => {
               </Button>
             </>
           )}
+        </DialogActions>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog
+        open={changePasswordOpen}
+        onClose={handleCloseChangePassword}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LockOutlinedIcon sx={{ color: '#1976d2' }} />
+            <Typography fontWeight={700}>Change Your Password</Typography>
+          </Box>
+          <IconButton onClick={handleCloseChangePassword} size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Update the password for your admin account. You will need the current password to confirm.
+          </Typography>
+          <Box display="flex" flexDirection="column" gap={2}>
+            {[
+              { key: 'current', label: 'Current Password', field: 'currentPassword' },
+              { key: 'new', label: 'New Password', field: 'newPassword' },
+              { key: 'confirm', label: 'Confirm New Password', field: 'confirmPassword' },
+            ].map(({ key, label, field }) => (
+              <TextField
+                key={key}
+                label={label}
+                type={showPasswordFields[key] ? 'text' : 'password'}
+                fullWidth
+                size="small"
+                value={passwordForm[field]}
+                onChange={(e) => setPasswordForm({ ...passwordForm, [field]: e.target.value })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowPasswordFields((prev) => ({ ...prev, [key]: !prev[key] }))}
+                        edge="end"
+                      >
+                        {showPasswordFields[key] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={handleCloseChangePassword} sx={{ textTransform: 'none' }} disabled={changingPassword}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleChangePassword}
+            variant="contained"
+            disabled={
+              changingPassword ||
+              !passwordForm.currentPassword ||
+              !passwordForm.newPassword ||
+              !passwordForm.confirmPassword
+            }
+            sx={{
+              textTransform: 'none', borderRadius: '8px',
+              background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
+            }}
+          >
+            {changingPassword ? 'Updating...' : 'Update Password'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
