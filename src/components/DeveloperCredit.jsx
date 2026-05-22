@@ -10,15 +10,7 @@ const DeveloperCredit = ({ variant = 'light', sx = {} }) => {
   const border = isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0';
 
   return (
-    <Box
-      sx={{
-        textAlign: 'center',
-        mt: 3,
-        pt: 2,
-        borderTop: `1px solid ${border}`,
-        ...sx,
-      }}
-    >
+    <Box sx={{ textAlign: 'center', mt: 3, pt: 2, borderTop: `1px solid ${border}`, ...sx }}>
       <Typography variant="caption" sx={{ color: muted, display: 'block', lineHeight: 1.9 }}>
         Developed by <Box component="span" sx={{ fontWeight: 700, color: isDark ? 'rgba(255,255,255,0.85)' : '#475569' }}>Mohd Ateek</Box>
       </Typography>
@@ -30,12 +22,7 @@ const DeveloperCredit = ({ variant = 'light', sx = {} }) => {
       </Typography>
       <Typography variant="caption" sx={{ color: muted, display: 'block', lineHeight: 1.9 }}>
         Portfolio:{' '}
-        <Link
-          href={DEVELOPER_PORTFOLIO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{ color: accent, fontWeight: 600, textDecoration: 'none' }}
-        >
+        <Link href={DEVELOPER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" sx={{ color: accent, fontWeight: 600, textDecoration: 'none' }}>
           Visit ateek.netlify.app
         </Link>
       </Typography>

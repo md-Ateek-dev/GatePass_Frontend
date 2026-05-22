@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
-import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
+import GatePassPrintContent from '../components/GatePassPrintContent';
 
 const StatCard = ({ icon, label, value, color, bgColor }) => (
   <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
@@ -279,134 +279,7 @@ const Dashboard = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers id="printable-area">
-          {selectedPass && (
-            <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              {/* Header with QR and photo */}
-              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
-                <Box textAlign="center" sx={{ mr: 2, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <Box sx={{ width: 80, height: 80, display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 0.5, bgcolor: '#ffffff', p: 0.5, borderRadius: 1, border: '1px solid #e2e8f0' }}>
-                    {qrDataUrl ? (
-                      <img src={qrDataUrl} alt="QR Code" style={{ width: 70, height: 70, display: 'block' }} />
-                    ) : (
-                      <Typography variant="caption" color="text.secondary">Loading QR...</Typography>
-                    )}
-                  </Box>
-                  <Typography variant="caption" display="block">Scan Entry/Exit</Typography>
-                </Box>
-                <Box textAlign="center" flex={1}>
-                  <Typography variant="h5" fontWeight={800}>Raj Goli</Typography>
-                  <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
-                  <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
-                </Box>
-                <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
-                  {getVisitorPhotoUrl(selectedPass.visitorPhoto) ? (
-                    <>
-                      <img
-                        src={getVisitorPhotoUrl(selectedPass.visitorPhoto)}
-                        alt="Visitor"
-                        crossOrigin="anonymous"
-                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }}
-                      />
-                      <Typography variant="caption" display="block">Visitor Photo</Typography>
-                    </>
-                  ) : (
-                    <Box sx={{ width: 80, height: 80, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Typography variant="caption" color="text.secondary">No Photo</Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-
-              {/* Section 1: Visit Info */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  VISITOR INFORMATION
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Date & Time', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
-                    ['Unit', selectedPass.unit],
-                    ['Visit Type', selectedPass.visitType],
-                    ['Purpose', selectedPass.purpose],
-                    ['Person to Meet', selectedPass.personToMeet],
-                    ['Department', selectedPass.department],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 2: Visitor Info */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  VISITOR DETAILS
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Visitor Name', selectedPass.visitorName],
-                    ['Mobile No.', selectedPass.mobileNumber],
-                    ['Company', selectedPass.companyName],
-                    ['No. of Persons', selectedPass.numberOfPersons],
-                    ['ID Proof Type', selectedPass.idProofType],
-                    ['ID Number', selectedPass.idNumber],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 3: Items & Vehicle */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  ITEMS & VEHICLE
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Vehicle No.', selectedPass.vehicleNumber],
-                    ['Items Carrying', selectedPass.itemsCarrying],
-                    ['Serial No.', selectedPass.serialNumber],
-                    ['Make / Brand', selectedPass.make],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 4: Requested By */}
-              {/* <Box mb={2}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  REQUESTED BY
-                </Typography>
-                <Typography variant="body2"><strong>Name:</strong> {selectedPass.user?.name || '—'}</Typography>
-                <Typography variant="body2"><strong>Email:</strong> {selectedPass.user?.email || '—'}</Typography>
-                {selectedPass.outTime && (
-                  <Typography variant="body2"><strong>Out Time:</strong> {dayjs(selectedPass.outTime).format('DD MMM YYYY, HH:mm')}</Typography>
-                )}
-              </Box> */}
-
-              {/* Signatures */}
-              {/* <Box mt={3} display="flex" justifyContent="space-between">
-                {['Visitor Signature', 'Security Signature', 'Authorized Signatory'].map((label) => (
-                  <Box key={label} textAlign="center">
-                    <Typography>_______________</Typography>
-                    <Typography variant="caption">{label}</Typography>
-                  </Box>
-                ))}
-              </Box> */}
-            </Box>
-          )}
+          {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '8px' }}>

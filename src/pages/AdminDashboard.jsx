@@ -8,6 +8,8 @@ import {
   Tabs, Tab, InputAdornment
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,13 +23,11 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'react-toastify';
-import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
+import GatePassPrintContent from '../components/GatePassPrintContent';
 
 const StatCard = ({ icon, label, value, color, bgColor }) => (
   <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
@@ -82,16 +82,8 @@ const AdminDashboard = () => {
   const [gpSearch, setGpSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  const [showPasswordFields, setShowPasswordFields] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [showPasswordFields, setShowPasswordFields] = useState({ current: false, new: false, confirm: false });
   const [changingPassword, setChangingPassword] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -105,20 +97,12 @@ const AdminDashboard = () => {
   const filteredUsers = useMemo(() => {
     const q = userSearch.trim().toLowerCase();
     if (!q) return users;
-    return users.filter(
-      (u) =>
-        u.name?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q)
-    );
+    return users.filter((u) => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
   }, [users, userSearch]);
 
   const searchFieldSx = {
     minWidth: { xs: '100%', sm: 280 },
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '10px',
-      bgcolor: '#f8fafc',
-      fontSize: '0.875rem',
-    },
+    '& .MuiOutlinedInput-root': { borderRadius: '10px', bgcolor: '#f8fafc', fontSize: '0.875rem' },
   };
 
   const fetchData = async () => {
@@ -252,22 +236,18 @@ const AdminDashboard = () => {
 
   const handleChangePassword = async () => {
     const { currentPassword, newPassword, confirmPassword } = passwordForm;
-
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error('Please fill all password fields');
       return;
     }
-
     if (newPassword.length < 6) {
       toast.error('New password must be at least 6 characters');
       return;
     }
-
     if (newPassword !== confirmPassword) {
       toast.error('New password and confirm password do not match');
       return;
     }
-
     setChangingPassword(true);
     try {
       await axios.put('/api/auth/password', { currentPassword, newPassword });
@@ -306,8 +286,7 @@ const AdminDashboard = () => {
               startIcon={<VpnKeyIcon />}
               onClick={() => setChangePasswordOpen(true)}
               sx={{
-                textTransform: 'none', borderRadius: '10px',
-                fontWeight: 700, px: 2, py: 1,
+                textTransform: 'none', borderRadius: '10px', fontWeight: 700, px: 2, py: 1,
                 borderColor: '#cbd5e1', color: '#475569',
                 '&:hover': { borderColor: '#1976d2', color: '#1976d2', bgcolor: '#eff6ff' },
                 whiteSpace: 'nowrap',
@@ -393,33 +372,16 @@ const AdminDashboard = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
             }}
           >
-            <Box
-              sx={{
-                p: { xs: 2, sm: 3 },
-                borderBottom: '1px solid #f1f5f9',
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: { xs: 'stretch', sm: 'center' },
-                justifyContent: 'space-between',
-                gap: 2,
-              }}
-            >
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Requests ({filteredPasses.length}
-                {gpSearch.trim() ? ` of ${passes.length}` : ''})
+                All Requests ({filteredPasses.length}{gpSearch.trim() ? ` of ${passes.length}` : ''})
               </Typography>
               <TextField
                 size="small"
                 placeholder="Search by GP number..."
                 value={gpSearch}
                 onChange={(e) => setGpSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
-                }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
                 sx={searchFieldSx}
               />
             </Box>
@@ -474,9 +436,7 @@ const AdminDashboard = () => {
                               <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
                                 In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
                               </Typography>
-                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
-                                Out: —
-                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>Out: —</Typography>
                             </Box>
                           </Box>
                         ) : pass.status === 'Checked Out' ? (
@@ -488,24 +448,12 @@ const AdminDashboard = () => {
                               </Typography>
                             </Box>
                             <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-                              {pass.checkInTime ? (
-                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
-                                  In: {dayjs(pass.checkInTime).format('hh:mm A')}
-                                </Typography>
-                              ) : (
-                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
-                                  In: —
-                                </Typography>
-                              )}
-                              {pass.outTime ? (
-                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b' }}>
-                                  Out: {dayjs(pass.outTime).format('hh:mm A')}
-                                </Typography>
-                              ) : (
-                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>
-                                  Out: —
-                                </Typography>
-                              )}
+                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
+                                In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
+                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b' }}>
+                                Out: {pass.outTime ? dayjs(pass.outTime).format('hh:mm A') : '—'}
+                              </Typography>
                             </Box>
                           </Box>
                         ) : (
@@ -566,9 +514,7 @@ const AdminDashboard = () => {
                       <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <PeopleAltIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
                         <Typography variant="body2">
-                          {passes.length === 0
-                            ? 'No gate pass requests found'
-                            : `No gate pass matching "${gpSearch.trim()}"`}
+                          {passes.length === 0 ? 'No gate pass requests found' : `No gate pass matching "${gpSearch.trim()}"`}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -588,33 +534,16 @@ const AdminDashboard = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
             }}
           >
-            <Box
-              sx={{
-                p: { xs: 2, sm: 3 },
-                borderBottom: '1px solid #f1f5f9',
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: { xs: 'stretch', sm: 'center' },
-                justifyContent: 'space-between',
-                gap: 2,
-              }}
-            >
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Registered Users ({filteredUsers.length}
-                {userSearch.trim() ? ` of ${users.length}` : ''})
+                All Registered Users ({filteredUsers.length}{userSearch.trim() ? ` of ${users.length}` : ''})
               </Typography>
               <TextField
                 size="small"
                 placeholder="Search by name or email..."
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
-                }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
                 sx={searchFieldSx}
               />
             </Box>
@@ -706,9 +635,7 @@ const AdminDashboard = () => {
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <Typography variant="body2">
-                          {users.length === 0
-                            ? 'No registered users found'
-                            : `No user matching "${userSearch.trim()}"`}
+                          {users.length === 0 ? 'No registered users found' : `No user matching "${userSearch.trim()}"`}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -743,134 +670,7 @@ const AdminDashboard = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers id="printable-area">
-          {selectedPass && (
-            <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-              {/* Header with QR and photo */}
-              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
-                <Box textAlign="center" sx={{ mr: 2, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <Box sx={{ width: 80, height: 80, display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 0.5, bgcolor: '#ffffff', p: 0.5, borderRadius: 1, border: '1px solid #e2e8f0' }}>
-                    {qrDataUrl ? (
-                      <img src={qrDataUrl} alt="QR Code" style={{ width: 70, height: 70, display: 'block' }} />
-                    ) : (
-                      <Typography variant="caption" color="text.secondary">Loading QR...</Typography>
-                    )}
-                  </Box>
-                  <Typography variant="caption" display="block">Scan Entry/Exit</Typography>
-                </Box>
-                <Box textAlign="center" flex={1}>
-                  <Typography variant="h5" fontWeight={800}>Raj Goli</Typography>
-                  <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
-                  <Typography variant="caption" color="text.secondary">Gate Pass No: {selectedPass.gatePassNumber}</Typography>
-                </Box>
-                <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
-                  {getVisitorPhotoUrl(selectedPass.visitorPhoto) ? (
-                    <>
-                      <img
-                        src={getVisitorPhotoUrl(selectedPass.visitorPhoto)}
-                        alt="Visitor"
-                        crossOrigin="anonymous"
-                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }}
-                      />
-                      <Typography variant="caption" display="block">Visitor Photo</Typography>
-                    </>
-                  ) : (
-                    <Box sx={{ width: 80, height: 80, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Typography variant="caption" color="text.secondary">No Photo</Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-
-              {/* Section 1: Visit Info */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  VISITOR INFORMATION
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Date & Time', dayjs(selectedPass.date).format('DD MMM YYYY, HH:mm')],
-                    ['Unit', selectedPass.unit],
-                    ['Visit Type', selectedPass.visitType],
-                    ['Purpose', selectedPass.purpose],
-                    ['Person to Meet', selectedPass.personToMeet],
-                    ['Department', selectedPass.department],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 2: Visitor Info */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  VISITOR DETAILS
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Visitor Name', selectedPass.visitorName],
-                    ['Mobile No.', selectedPass.mobileNumber],
-                    ['Company', selectedPass.companyName],
-                    ['No. of Persons', selectedPass.numberOfPersons],
-                    ['ID Proof Type', selectedPass.idProofType],
-                    ['ID Number', selectedPass.idNumber],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 3: Items & Vehicle */}
-              <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  ITEMS & VEHICLE
-                </Typography>
-                <Grid container spacing={0.5}>
-                  {[
-                    ['Vehicle No.', selectedPass.vehicleNumber],
-                    ['Items Carrying', selectedPass.itemsCarrying],
-                    ['Serial No.', selectedPass.serialNumber],
-                    ['Make / Brand', selectedPass.make],
-                  ].map(([key, val]) => (
-                    <Grid item xs={6} key={key}>
-                      <Typography variant="body2" sx={{ mb: 0.3 }}>
-                        <strong>{key}:</strong> {val || '—'}
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-
-              {/* Section 4: Requested By */}
-              {/* <Box mb={2}>
-                <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-                  REQUESTED BY
-                </Typography>
-                <Typography variant="body2"><strong>Name:</strong> {selectedPass.user?.name || '—'}</Typography>
-                <Typography variant="body2"><strong>Email:</strong> {selectedPass.user?.email || '—'}</Typography>
-                {selectedPass.outTime && (
-                  <Typography variant="body2"><strong>Out Time:</strong> {dayjs(selectedPass.outTime).format('DD MMM YYYY, HH:mm')}</Typography>
-                )}
-              </Box> */}
-
-              {/* Signatures */}
-              {/* <Box mt={3} display="flex" justifyContent="space-between">
-                {['Visitor Signature', 'Security Signature', 'Authorized Signatory'].map((label) => (
-                  <Box key={label} textAlign="center">
-                    <Typography>_______________</Typography>
-                    <Typography variant="caption">{label}</Typography>
-                  </Box>
-                ))}
-              </Box> */}
-            </Box>
-          )}
+          {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '8px' }}>
@@ -990,28 +790,16 @@ const AdminDashboard = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Change Password Dialog */}
-      <Dialog
-        open={changePasswordOpen}
-        onClose={handleCloseChangePassword}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
+      <Dialog open={changePasswordOpen} onClose={handleCloseChangePassword} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LockOutlinedIcon sx={{ color: '#1976d2' }} />
             <Typography fontWeight={700}>Change Your Password</Typography>
           </Box>
-          <IconButton onClick={handleCloseChangePassword} size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
+          <IconButton onClick={handleCloseChangePassword} size="small"><CloseIcon fontSize="small" /></IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Update the password for your admin account. You will need the current password to confirm.
-          </Typography>
-          <Box display="flex" flexDirection="column" gap={2}>
+          <Box display="flex" flexDirection="column" gap={2} pt={1}>
             {[
               { key: 'current', label: 'Current Password', field: 'currentPassword' },
               { key: 'new', label: 'New Password', field: 'newPassword' },
@@ -1028,11 +816,7 @@ const AdminDashboard = () => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => setShowPasswordFields((prev) => ({ ...prev, [key]: !prev[key] }))}
-                        edge="end"
-                      >
+                      <IconButton size="small" onClick={() => setShowPasswordFields((p) => ({ ...p, [key]: !p[key] }))} edge="end">
                         {showPasswordFields[key] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                       </IconButton>
                     </InputAdornment>
@@ -1043,22 +827,12 @@ const AdminDashboard = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={handleCloseChangePassword} sx={{ textTransform: 'none' }} disabled={changingPassword}>
-            Cancel
-          </Button>
+          <Button onClick={handleCloseChangePassword} disabled={changingPassword} sx={{ textTransform: 'none' }}>Cancel</Button>
           <Button
             onClick={handleChangePassword}
             variant="contained"
-            disabled={
-              changingPassword ||
-              !passwordForm.currentPassword ||
-              !passwordForm.newPassword ||
-              !passwordForm.confirmPassword
-            }
-            sx={{
-              textTransform: 'none', borderRadius: '8px',
-              background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
-            }}
+            disabled={changingPassword || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+            sx={{ textTransform: 'none', borderRadius: '8px', background: 'linear-gradient(135deg, #1976d2, #7c3aed)' }}
           >
             {changingPassword ? 'Updating...' : 'Update Password'}
           </Button>
