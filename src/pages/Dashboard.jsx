@@ -163,11 +163,8 @@ const Dashboard = () => {
           </Box>
 
           <TableContainer sx={{ overflowX: 'auto' }}>
-            
             <Table sx={{ minWidth: isMobile ? 500 : 650 }}>
-              
               <TableHead>
-                
                 <TableRow sx={{ bgcolor: '#f8fafc' }}>
                   {['S.No.', 'GP Number', 'Date', 'Visitor Name', 'Company', 'Status', 'Action'].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5 }}>
@@ -191,10 +188,9 @@ const Dashboard = () => {
                     }}
                   >
                     
-                    <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
-                                            {idx + 1}
-                                          </TableCell>
-                                          
+                    <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: '0.82rem' }}>
+                      {idx + 1}
+                    </TableCell>
                     <TableCell sx={{ fontWeight: 600, color: '#1976d2', fontSize: '0.82rem' }}>
                       {pass.gatePassNumber}
                     </TableCell>
