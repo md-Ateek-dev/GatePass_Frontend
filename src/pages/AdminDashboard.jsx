@@ -5,7 +5,7 @@ import {
   TableContainer, TableHead, TableRow, Button, Select, MenuItem,
   FormControl, Dialog, DialogTitle, DialogContent, DialogActions,
   IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip, TextField,
-  Tabs, Tab, InputAdornment
+  Tabs, Tab, InputAdornment, Checkbox
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -85,6 +85,8 @@ const AdminDashboard = () => {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [showPasswordFields, setShowPasswordFields] = useState({ current: false, new: false, confirm: false });
   const [changingPassword, setChangingPassword] = useState(false);
+  const [selectedPassIds, setSelectedPassIds] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -168,10 +170,46 @@ const AdminDashboard = () => {
       try {
         await axios.delete(`/api/admin/${id}`);
         toast.success('Gate pass deleted successfully');
+        setSelectedPassIds((prev) => prev.filter((x) => x !== id));
         fetchData();
       } catch {
         toast.error('Failed to delete gate pass');
       }
+    }
+  };
+
+  const allFilteredPassesSelected =
+    filteredPasses.length > 0 && filteredPasses.every((p) => selectedPassIds.includes(p._id));
+
+  const togglePassSelection = (id) => {
+    setSelectedPassIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAllPasses = () => {
+    const filteredIds = filteredPasses.map((p) => p._id);
+    if (allFilteredPassesSelected) {
+      setSelectedPassIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      setSelectedPassIds((prev) => [...new Set([...prev, ...filteredIds])]);
+    }
+  };
+
+  const handleBulkDeletePasses = async () => {
+    if (selectedPassIds.length === 0) return;
+    if (!window.confirm(`Delete ${selectedPassIds.length} selected gate pass(es)?`)) return;
+
+    setBulkDeleting(true);
+    try {
+      const { data } = await axios.post('/api/admin/bulk-delete', { ids: selectedPassIds });
+      toast.success(data.message || 'Selected gate passes deleted');
+      setSelectedPassIds([]);
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete selected gate passes');
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -372,24 +410,56 @@ const AdminDashboard = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
             }}
           >
-            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
               <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
                 All Requests ({filteredPasses.length}{gpSearch.trim() ? ` of ${passes.length}` : ''})
+                {selectedPassIds.length > 0 && (
+                  <Typography component="span" variant="body2" sx={{ color: '#64748b', fontWeight: 600, ml: 1 }}>
+                    · {selectedPassIds.length} selected
+                  </Typography>
+                )}
               </Typography>
-              <TextField
-                size="small"
-                placeholder="Search by GP number..."
-                value={gpSearch}
-                onChange={(e) => setGpSearch(e.target.value)}
-                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
-                sx={searchFieldSx}
-              />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
+                {selectedPassIds.length > 0 && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                    disabled={bulkDeleting}
+                    onClick={handleBulkDeletePasses}
+                    sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 700 }}
+                  >
+                    {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedPassIds.length})`}
+                  </Button>
+                )}
+                <TextField
+                  size="small"
+                  placeholder="Search by GP number..."
+                  value={gpSearch}
+                  onChange={(e) => setGpSearch(e.target.value)}
+                  InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
+                  sx={searchFieldSx}
+                />
+              </Box>
             </Box>
 
             <TableContainer sx={{ overflowX: 'auto' }}>
               <Table sx={{ minWidth: 700 }}>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    <TableCell padding="checkbox" sx={{ fontWeight: 700, color: '#475569', py: 1.5 }}>
+                      <Checkbox
+                        size="small"
+                        checked={allFilteredPassesSelected}
+                        indeterminate={selectedPassIds.length > 0 && !allFilteredPassesSelected}
+                        onChange={toggleSelectAllPasses}
+                        disabled={filteredPasses.length === 0}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
+                      S.No.
+                    </TableCell>
                     {['GP Number', 'Date', 'Visitor', 'Requested By', 'Status', 'Actions'].map((h) => (
                       <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
                         {h}
@@ -405,12 +475,24 @@ const AdminDashboard = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: idx * 0.03 }}
+                      selected={selectedPassIds.includes(pass._id)}
                       sx={{
                         '&:hover': { bgcolor: '#f8fafc' },
                         '&:last-child td': { border: 0 },
                         transition: 'background 0.15s',
+                        bgcolor: selectedPassIds.includes(pass._id) ? '#eff6ff' : 'inherit',
                       }}
                     >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          size="small"
+                          checked={selectedPassIds.includes(pass._id)}
+                          onChange={() => togglePassSelection(pass._id)}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
+                        {idx + 1}
+                      </TableCell>
                       <TableCell sx={{ fontWeight: 700, color: '#1976d2', fontSize: '0.82rem' }}>
                         {pass.gatePassNumber}
                       </TableCell>
@@ -511,7 +593,7 @@ const AdminDashboard = () => {
                   ))}
                   {filteredPasses.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                      <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <PeopleAltIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
                         <Typography variant="body2">
                           {passes.length === 0 ? 'No gate pass requests found' : `No gate pass matching "${gpSearch.trim()}"`}
@@ -552,6 +634,9 @@ const AdminDashboard = () => {
               <Table sx={{ minWidth: 700 }}>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
+                      S.No.
+                    </TableCell>
                     {['Name', 'User ID (Email)', 'Password', 'Role', 'Actions'].map((h) => (
                       <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
                         {h}
@@ -573,6 +658,9 @@ const AdminDashboard = () => {
                         transition: 'background 0.15s',
                       }}
                     >
+                      <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
+                        {idx + 1}
+                      </TableCell>
                       <TableCell sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem' }}>
                         {user.name}
                       </TableCell>
@@ -633,7 +721,7 @@ const AdminDashboard = () => {
                   ))}
                   {filteredUsers.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                      <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <Typography variant="body2">
                           {users.length === 0 ? 'No registered users found' : `No user matching "${userSearch.trim()}"`}
                         </Typography>
@@ -663,13 +751,13 @@ const AdminDashboard = () => {
         fullScreen={isMobile}
         PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
           <Typography fontWeight={700}>Gate Pass — {selectedPass?.gatePassNumber}</Typography>
           <IconButton onClick={() => setPrintOpen(false)} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers id="printable-area">
+        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff' }}>
           {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>

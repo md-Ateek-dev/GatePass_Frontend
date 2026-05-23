@@ -1,13 +1,14 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, Link } from '@mui/material';
 import dayjs from 'dayjs';
 import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
 import { COMPANY_NAME, COMPANY_LOGO_SRC } from '../utils/company';
+import { DEVELOPER_CONTACT, DEVELOPER_PORTFOLIO_URL } from './DeveloperCredit';
 
 const GatePassPrintContent = ({ pass, qrDataUrl }) => {
   const photoUrl = getVisitorPhotoUrl(pass.visitorPhoto);
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
+    <Box className="gate-pass-print-sheet" sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mr: 2, flexShrink: 0 }}>
           <Box textAlign="center" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -114,6 +115,19 @@ const GatePassPrintContent = ({ pass, qrDataUrl }) => {
             </Grid>
           ))}
         </Grid>
+      </Box>
+
+      <Box className="gate-pass-print-footer" sx={{ mt: 2, pt: 1.5, borderTop: '1px solid #cbd5e1', textAlign: 'center' }}>
+        <Typography variant="caption" sx={{ fontSize: '0.72rem', lineHeight: 1.7, color: '#475569', display: 'block' }}>
+          This Gate Pass Software is Developed by <strong>Mohd Ateek</strong>. WhatsApp No.{' '}
+          <Link href={`tel:${DEVELOPER_CONTACT}`} sx={{ color: '#1565c0', textDecoration: 'none', fontWeight: 600 }}>
+            {DEVELOPER_CONTACT}
+          </Link>
+          . Visit my website{' '}
+          <Link href={DEVELOPER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" sx={{ color: '#1565c0', textDecoration: 'none', fontWeight: 600 }}>
+            {DEVELOPER_PORTFOLIO_URL}
+          </Link>
+        </Typography>
       </Box>
     </Box>
   );

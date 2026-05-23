@@ -163,10 +163,13 @@ const Dashboard = () => {
           </Box>
 
           <TableContainer sx={{ overflowX: 'auto' }}>
+            
             <Table sx={{ minWidth: isMobile ? 500 : 650 }}>
+              
               <TableHead>
+                
                 <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                  {['GP Number', 'Date', 'Visitor Name', 'Company', 'Status', 'Action'].map((h) => (
+                  {['S.No.', 'GP Number', 'Date', 'Visitor Name', 'Company', 'Status', 'Action'].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5 }}>
                       {h}
                     </TableCell>
@@ -187,6 +190,11 @@ const Dashboard = () => {
                       transition: 'background 0.15s',
                     }}
                   >
+                    
+                    <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
+                                            {idx + 1}
+                                          </TableCell>
+                                          
                     <TableCell sx={{ fontWeight: 600, color: '#1976d2', fontSize: '0.82rem' }}>
                       {pass.gatePassNumber}
                     </TableCell>
@@ -267,18 +275,18 @@ const Dashboard = () => {
       <Dialog
         open={printOpen}
         onClose={() => setPrintOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
         fullScreen={isMobile}
         PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
           <Typography fontWeight={700}>Gate Pass — {selectedPass?.gatePassNumber}</Typography>
           <IconButton onClick={() => setPrintOpen(false)} size="small">
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers id="printable-area">
+        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff' }}>
           {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>

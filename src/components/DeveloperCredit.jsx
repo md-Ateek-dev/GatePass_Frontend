@@ -1,6 +1,6 @@
 import { Box, Typography, Link } from '@mui/material';
 
-export const DEVELOPER_PORTFOLIO_URL = 'https://ateek.netlify.app/';
+export const DEVELOPER_PORTFOLIO_URL = 'https://ateek.netlify.app';
 export const DEVELOPER_CONTACT = '7054375826';
 
 const DeveloperCredit = ({ variant = 'light', sx = {} }) => {
