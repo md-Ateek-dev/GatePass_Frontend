@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, TextField, Button, InputAdornment,
-  IconButton, CircularProgress
+  IconButton, CircularProgress, Link
 } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -12,7 +12,16 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import BadgeIcon from '@mui/icons-material/Badge';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-import DeveloperCredit from '../components/DeveloperCredit';
+import { DEVELOPER_CONTACT, DEVELOPER_PORTFOLIO_URL } from '../components/DeveloperCredit';
+
+const fieldSx = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '10px',
+    bgcolor: '#f8fafc',
+    '&:hover fieldset': { borderColor: '#1976d2' },
+    '&.Mui-focused fieldset': { borderColor: '#1976d2' },
+  },
+};
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -39,81 +48,96 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%)',
-        p: { xs: 2, sm: 3 },
+        background: 'linear-gradient(145deg, #0f172a 0%, #1e3a5f 45%, #312e81 100%)',
+        px: { xs: 1.5, sm: 2 },
+        py: { xs: 1.5, sm: 2 },
+        boxSizing: 'border-box',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Background decorative circles */}
-      <Box sx={{
-        position: 'absolute', top: '-10%', right: '-5%',
-        width: { xs: 200, md: 350 }, height: { xs: 200, md: 350 },
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(25,118,210,0.15) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-      <Box sx={{
-        position: 'absolute', bottom: '-10%', left: '-5%',
-        width: { xs: 180, md: 300 }, height: { xs: 180, md: 300 },
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '-20%',
+          right: '-15%',
+          width: 320,
+          height: 320,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '-25%',
+          left: '-15%',
+          width: 280,
+          height: 280,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{ width: '100%', maxWidth: 420 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        style={{ width: '100%', maxWidth: 400, margin: 0 }}
       >
-        {/* Card */}
         <Box
           sx={{
-            bgcolor: 'rgba(255,255,255,0.97)',
+            bgcolor: '#ffffff',
             borderRadius: 3,
-            boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.35)',
             overflow: 'hidden',
+            border: '1px solid rgba(255,255,255,0.12)',
           }}
         >
-          {/* Card Header */}
           <Box
             sx={{
               background: 'linear-gradient(135deg, #1565c0 0%, #7c3aed 100%)',
-              p: { xs: 3, sm: 4 },
+              px: 3,
+              py: 3,
               textAlign: 'center',
             }}
           >
             <Box
               sx={{
-                width: 56, height: 56, borderRadius: '16px',
+                width: 52,
+                height: 52,
+                borderRadius: '14px',
                 bgcolor: 'rgba(255,255,255,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                mx: 'auto', mb: 1.5,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 1.25,
               }}
             >
               <BadgeIcon sx={{ color: 'white', fontSize: 28 }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: 0.3 }}>
+            <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: 0.2 }}>
               Gate Pass Pro
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', mt: 0.5 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.25 }}>
               Visitor Management System
             </Typography>
           </Box>
 
-          {/* Form */}
-          <Box component="form" onSubmit={handleSubmit} sx={{ p: { xs: 3, sm: 4 } }}>
-            <Typography variant="h6" fontWeight={700} sx={{ color: '#0f172a', mb: 0.5 }}>
-              Welcome back 👋
+          <Box component="form" onSubmit={handleSubmit} sx={{ px: { xs: 2.5, sm: 3 }, py: 3 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a', mb: 0.25 }}>
+              Sign in
             </Typography>
-            <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
-              Sign in to your account to continue
+            <Typography variant="body2" sx={{ color: '#64748b', mb: 2.5 }}>
+              Enter your credentials to continue
             </Typography>
 
             <TextField
@@ -125,6 +149,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              size="small"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -132,13 +157,7 @@ const Login = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  '&:hover fieldset': { borderColor: '#1976d2' },
-                },
-              }}
+              sx={{ ...fieldSx, mb: 2 }}
             />
 
             <TextField
@@ -149,6 +168,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              size="small"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -162,19 +182,14 @@ const Login = () => {
                       edge="end"
                       size="small"
                       sx={{ color: '#94a3b8' }}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  '&:hover fieldset': { borderColor: '#1976d2' },
-                },
-              }}
+              sx={{ ...fieldSx, mb: 2.5 }}
             />
 
             <Button
@@ -183,28 +198,44 @@ const Login = () => {
               variant="contained"
               disabled={loading}
               sx={{
-                py: 1.4,
+                py: 1.25,
                 borderRadius: '10px',
                 fontSize: '0.95rem',
                 fontWeight: 700,
                 textTransform: 'none',
                 background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
-                boxShadow: '0 8px 24px rgba(25,118,210,0.35)',
+                boxShadow: '0 6px 20px rgba(25,118,210,0.35)',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #1976d2, #6d28d9)',
-                  boxShadow: '0 12px 28px rgba(25,118,210,0.45)',
-                  transform: 'translateY(-1px)',
                 },
-                '&:active': { transform: 'translateY(0)' },
-                transition: 'all 0.2s ease',
               }}
             >
               {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : 'Sign In'}
             </Button>
           </Box>
-        </Box>
 
-        <DeveloperCredit variant="dark" sx={{ mt: 2, pt: 2, borderTop: 'none' }} />
+          <Box
+            sx={{
+              px: { xs: 2, sm: 2.5 },
+              py: 1.75,
+              bgcolor: '#f8fafc',
+              borderTop: '1px solid #e2e8f0',
+              textAlign: 'center',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: '#64748b', lineHeight: 1.65, display: 'block' }}>
+              Developed by <strong>Mohd Ateek</strong> · Contact{' '}
+              <Link href={`tel:${DEVELOPER_CONTACT}`} sx={{ color: '#1565c0', fontWeight: 600, textDecoration: 'none' }}>
+                {DEVELOPER_CONTACT}
+              </Link>
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#64748b', lineHeight: 1.65, display: 'block', mt: 0.25 }}>
+              <Link href={DEVELOPER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" sx={{ color: '#1565c0', fontWeight: 600, textDecoration: 'none' }}>
+                ateek.netlify.app
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
       </motion.div>
     </Box>
   );

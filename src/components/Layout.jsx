@@ -38,6 +38,8 @@ const Layout = ({ children }) => {
   ];
 
   const isActive = (path) => location.pathname === path;
+  const isFullscreenRoute =
+    location.pathname === '/login' || location.pathname.startsWith('/scan/');
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -172,6 +174,10 @@ const Layout = ({ children }) => {
       )}
     </Box>
   );
+
+  if (isFullscreenRoute) {
+    return <Box sx={{ minHeight: '100dvh', width: '100%', m: 0, p: 0 }}>{children}</Box>;
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f0f4f8' }}>

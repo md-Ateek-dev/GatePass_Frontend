@@ -37,6 +37,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg);

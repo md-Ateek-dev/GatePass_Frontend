@@ -448,18 +448,6 @@ const AdminDashboard = () => {
               <Table sx={{ minWidth: 700 }}>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    <TableCell padding="checkbox" sx={{ fontWeight: 700, color: '#475569', py: 1.5 }}>
-                      <Checkbox
-                        size="small"
-                        checked={allFilteredPassesSelected}
-                        indeterminate={selectedPassIds.length > 0 && !allFilteredPassesSelected}
-                        onChange={toggleSelectAllPasses}
-                        disabled={filteredPasses.length === 0}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
-                      S.No.
-                    </TableCell>
                     {['GP Number', 'Date', 'Visitor', 'Requested By', 'Status', 'Actions'].map((h) => (
                       <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
                         {h}
@@ -475,24 +463,12 @@ const AdminDashboard = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: idx * 0.03 }}
-                      selected={selectedPassIds.includes(pass._id)}
                       sx={{
                         '&:hover': { bgcolor: '#f8fafc' },
                         '&:last-child td': { border: 0 },
                         transition: 'background 0.15s',
-                        bgcolor: selectedPassIds.includes(pass._id) ? '#eff6ff' : 'inherit',
                       }}
                     >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          size="small"
-                          checked={selectedPassIds.includes(pass._id)}
-                          onChange={() => togglePassSelection(pass._id)}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
-                        {idx + 1}
-                      </TableCell>
                       <TableCell sx={{ fontWeight: 700, color: '#1976d2', fontSize: '0.82rem' }}>
                         {pass.gatePassNumber}
                       </TableCell>
@@ -593,7 +569,7 @@ const AdminDashboard = () => {
                   ))}
                   {filteredPasses.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                      <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <PeopleAltIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
                         <Typography variant="body2">
                           {passes.length === 0 ? 'No gate pass requests found' : `No gate pass matching "${gpSearch.trim()}"`}
@@ -634,9 +610,6 @@ const AdminDashboard = () => {
               <Table sx={{ minWidth: 700 }}>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
-                      S.No.
-                    </TableCell>
                     {['Name', 'User ID (Email)', 'Password', 'Role', 'Actions'].map((h) => (
                       <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
                         {h}
@@ -658,9 +631,6 @@ const AdminDashboard = () => {
                         transition: 'background 0.15s',
                       }}
                     >
-                      <TableCell sx={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>
-                        {idx + 1}
-                      </TableCell>
                       <TableCell sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem' }}>
                         {user.name}
                       </TableCell>
@@ -721,7 +691,7 @@ const AdminDashboard = () => {
                   ))}
                   {filteredUsers.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                         <Typography variant="body2">
                           {users.length === 0 ? 'No registered users found' : `No user matching "${userSearch.trim()}"`}
                         </Typography>
@@ -866,7 +836,8 @@ const AdminDashboard = () => {
                 onClick={handleCreateUser}
                 variant="contained"
                 disabled={!newUser.name || !newUser.email || !newUser.password}
-                sx={{
+                
+                sx={{ 
                   textTransform: 'none', borderRadius: '8px',
                   background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
                 }}
