@@ -6,7 +6,7 @@ export const DEVELOPER_CONTACT = '7054375826';
 const DeveloperCredit = ({ variant = 'light', sx = {} }) => {
   const isDark = variant === 'dark';
   const muted = isDark ? 'rgba(255,255,255,0.55)' : '#94a3b8';
-  const accent = isDark ? '#93c5fd' : '#1565c0';
+  const accent = isDark ? '#d4b87a' : '#a6843f';
   const border = isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0';
 
   return (

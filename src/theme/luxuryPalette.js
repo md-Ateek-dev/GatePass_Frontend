@@ -1,0 +1,62 @@
+/** Executive luxury palette — navy, champagne gold, warm ivory */
+export const luxuryPalette = {
+  navy: '#0f1c2e',
+  navyMid: '#1a2d4a',
+  navyLight: '#2a4365',
+  gold: '#c5a059',
+  goldLight: '#d4b87a',
+  goldDark: '#a6843f',
+  champagne: '#e8dcc8',
+  ivory: '#f8f6f2',
+  ivoryDark: '#ebe6dc',
+  slate: '#64748b',
+  emerald: '#0d9488',
+  rose: '#be123c',
+};
+
+export const luxuryGradients = {
+  primary: 'linear-gradient(135deg, #1a2d4a 0%, #0f1c2e 55%, #2a4365 100%)',
+  goldAccent: 'linear-gradient(135deg, #d4b87a 0%, #c5a059 50%, #a6843f 100%)',
+  hero: 'linear-gradient(145deg, #1a2d4a 0%, #0f1c2e 40%, #1e3a5f 100%)',
+  subtle: 'linear-gradient(180deg, rgba(197, 160, 89, 0.08) 0%, transparent 100%)',
+};
+
+export const pagePaperSx = {
+  borderRadius: 3,
+  border: '1px solid',
+  borderColor: 'divider',
+  boxShadow: (theme) =>
+    theme.palette.mode === 'dark'
+      ? '0 8px 32px rgba(0,0,0,0.35)'
+      : '0 4px 24px rgba(15, 28, 46, 0.06)',
+  overflow: 'hidden',
+  bgcolor: 'background.paper',
+};
+
+export const primaryButtonSx = {
+  textTransform: 'none',
+  fontWeight: 700,
+  borderRadius: '12px',
+  px: 2.5,
+  py: 1,
+  background: luxuryGradients.goldAccent,
+  color: '#0f1c2e',
+  boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
+  '&:hover': {
+    background: 'linear-gradient(135deg, #e0c48a 0%, #c5a059 100%)',
+    boxShadow: '0 6px 20px rgba(197, 160, 89, 0.45)',
+    transform: 'translateY(-1px)',
+  },
+};
+
+export const outlinedGoldButtonSx = {
+  textTransform: 'none',
+  fontWeight: 700,
+  borderRadius: '12px',
+  borderColor: 'primary.main',
+  color: 'primary.main',
+  '&:hover': {
+    borderColor: 'secondary.main',
+    bgcolor: 'rgba(197, 160, 89, 0.08)',
+  },
+};

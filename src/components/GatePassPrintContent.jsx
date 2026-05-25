@@ -1,38 +1,114 @@
-import { Box, Typography, Grid, Link } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import dayjs from 'dayjs';
 import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
 import { COMPANY_NAME, COMPANY_LOGO_SRC } from '../utils/company';
 import { DEVELOPER_CONTACT, DEVELOPER_PORTFOLIO_URL } from './DeveloperCredit';
 
+/** Always light/print-safe colors (works in dark theme preview + print) */
+const C = {
+  text: '#0f1c2e',
+  muted: '#475569',
+  border: '#0f1c2e',
+  borderLight: '#cbd5e1',
+  sectionBg: '#f1f5f9',
+  white: '#ffffff',
+  link: '#1a2d4a',
+};
+
+const fieldLine = (label, value) => (
+  <Typography
+    variant="body2"
+    sx={{ mb: 0.3, color: C.text, fontSize: '0.82rem', lineHeight: 1.45 }}
+  >
+    <Box component="strong" sx={{ color: C.text }}>{label}:</Box> {value ?? '—'}
+  </Typography>
+);
+
+const sectionTitle = (title) => (
+  <Typography
+    variant="body2"
+    fontWeight={800}
+    sx={{
+      bgcolor: C.sectionBg,
+      color: C.text,
+      px: 1,
+      py: 0.5,
+      mb: 1,
+      borderRadius: 0.5,
+      fontSize: '0.75rem',
+      letterSpacing: 0.5,
+    }}
+  >
+    {title}
+  </Typography>
+);
+
 const GatePassPrintContent = ({ pass, qrDataUrl }) => {
   const photoUrl = getVisitorPhotoUrl(pass.visitorPhoto);
 
   return (
-    <Box className="gate-pass-print-sheet" sx={{ p: { xs: 1, sm: 2 }, border: '2px solid #0f172a', borderRadius: 1 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1.5} pb={1.5} sx={{ borderBottom: '2px solid #0f172a' }}>
+    <Box
+      className="gate-pass-print-sheet"
+      sx={{
+        p: { xs: 1, sm: 2 },
+        border: `2px solid ${C.border}`,
+        borderRadius: 1,
+        bgcolor: C.white,
+        color: C.text,
+      }}
+    >
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        mb={1.5}
+        pb={1.5}
+        sx={{ borderBottom: `2px solid ${C.border}` }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mr: 2, flexShrink: 0 }}>
+          <img
+            src={COMPANY_LOGO_SRC}
+            alt={`${COMPANY_NAME} logo`}
+            style={{ height: 56, width: 'auto', maxWidth: 120, objectFit: 'contain', display: 'block' }}
+          />
           <Box textAlign="center" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <img
-              src={COMPANY_LOGO_SRC}
-              alt={`${COMPANY_NAME} logo`}
-              style={{ height: 56, width: 'auto', maxWidth: 120, objectFit: 'contain', display: 'block' }}
-            />
-          </Box>
-          <Box textAlign="center" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 0.5 }}>
-            <Box sx={{ width: 72, height: 72, display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 0.5, bgcolor: '#ffffff', p: 0.5, borderRadius: 1, border: '1px solid #e2e8f0' }}>
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                mb: 0.5,
+                bgcolor: C.white,
+                p: 0.5,
+                borderRadius: 1,
+                border: `1px solid ${C.borderLight}`,
+              }}
+            >
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code" style={{ width: 64, height: 64, display: 'block' }} />
               ) : (
-                <Typography variant="caption" color="text.secondary">Loading QR...</Typography>
+                <Typography variant="caption" sx={{ color: C.muted }}>
+                  Loading QR...
+                </Typography>
               )}
             </Box>
-            <Typography variant="caption" display="block">Scan Entry/Exit</Typography>
+            <Typography variant="caption" display="block" sx={{ color: C.muted, fontWeight: 600 }}>
+              Scan Entry/Exit
+            </Typography>
           </Box>
         </Box>
         <Box textAlign="center" flex={1}>
-          <Typography variant="h5" fontWeight={800}>{COMPANY_NAME}</Typography>
-          <Typography variant="subtitle1" fontWeight={600}>Visitor Gate Pass</Typography>
-          <Typography variant="caption" color="text.secondary">Gate Pass No: {pass.gatePassNumber}</Typography>
+          <Typography variant="h5" fontWeight={800} sx={{ color: C.text }}>
+            {COMPANY_NAME}
+          </Typography>
+          <Typography variant="subtitle1" fontWeight={600} sx={{ color: C.text }}>
+            Visitor Gate Pass
+          </Typography>
+          <Typography variant="caption" sx={{ color: C.muted }}>
+            Gate Pass No: {pass.gatePassNumber}
+          </Typography>
         </Box>
         <Box textAlign="center" sx={{ ml: 2, flexShrink: 0 }}>
           {photoUrl ? (
@@ -41,22 +117,41 @@ const GatePassPrintContent = ({ pass, qrDataUrl }) => {
                 src={photoUrl}
                 alt="Visitor"
                 crossOrigin="anonymous"
-                style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #ccc', display: 'block' }}
+                style={{
+                  width: 80,
+                  height: 80,
+                  objectFit: 'cover',
+                  borderRadius: 4,
+                  border: '1px solid #94a3b8',
+                  display: 'block',
+                }}
               />
-              <Typography variant="caption" display="block">Visitor Photo</Typography>
+              <Typography variant="caption" display="block" sx={{ color: C.muted, fontWeight: 600 }}>
+                Visitor Photo
+              </Typography>
             </>
           ) : (
-            <Box sx={{ width: 80, height: 80, border: '1px dashed #ccc', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="caption" color="text.secondary">No Photo</Typography>
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                border: `1px dashed ${C.borderLight}`,
+                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: C.muted }}>
+                No Photo
+              </Typography>
             </Box>
           )}
         </Box>
       </Box>
 
-      <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-        <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-          VISITOR INFORMATION
-        </Typography>
+      <Box mb={1.5} sx={{ borderBottom: `1px solid ${C.borderLight}`, pb: 1 }}>
+        {sectionTitle('VISITOR INFORMATION')}
         <Grid container spacing={0.5}>
           {[
             ['Date & Time', dayjs(pass.date).format('DD MMM YYYY, HH:mm')],
@@ -67,18 +162,14 @@ const GatePassPrintContent = ({ pass, qrDataUrl }) => {
             ['Department', pass.department],
           ].map(([key, val]) => (
             <Grid item xs={6} key={key}>
-              <Typography variant="body2" sx={{ mb: 0.3 }}>
-                <strong>{key}:</strong> {val || '—'}
-              </Typography>
+              {fieldLine(key, val)}
             </Grid>
           ))}
         </Grid>
       </Box>
 
-      <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-        <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-          VISITOR DETAILS
-        </Typography>
+      <Box mb={1.5} sx={{ borderBottom: `1px solid ${C.borderLight}`, pb: 1 }}>
+        {sectionTitle('VISITOR DETAILS')}
         <Grid container spacing={0.5}>
           {[
             ['Visitor Name', pass.visitorName],
@@ -89,18 +180,14 @@ const GatePassPrintContent = ({ pass, qrDataUrl }) => {
             ['ID Number', pass.idNumber],
           ].map(([key, val]) => (
             <Grid item xs={6} key={key}>
-              <Typography variant="body2" sx={{ mb: 0.3 }}>
-                <strong>{key}:</strong> {val || '—'}
-              </Typography>
+              {fieldLine(key, val)}
             </Grid>
           ))}
         </Grid>
       </Box>
 
-      <Box mb={1.5} sx={{ borderBottom: '1px solid #e2e8f0', pb: 1 }}>
-        <Typography variant="body2" fontWeight={800} sx={{ bgcolor: '#f1f5f9', px: 1, py: 0.5, mb: 1, borderRadius: 0.5 }}>
-          ITEMS & VEHICLE
-        </Typography>
+      <Box mb={1.5} sx={{ borderBottom: `1px solid ${C.borderLight}`, pb: 1 }}>
+        {sectionTitle('ITEMS & VEHICLE')}
         <Grid container spacing={0.5}>
           {[
             ['Vehicle No.', pass.vehicleNumber],
@@ -109,24 +196,26 @@ const GatePassPrintContent = ({ pass, qrDataUrl }) => {
             ['Make / Brand', pass.make],
           ].map(([key, val]) => (
             <Grid item xs={6} key={key}>
-              <Typography variant="body2" sx={{ mb: 0.3 }}>
-                <strong>{key}:</strong> {val || '—'}
-              </Typography>
+              {fieldLine(key, val || '—')}
             </Grid>
           ))}
         </Grid>
       </Box>
 
-      <Box className="gate-pass-print-footer" sx={{ mt: 2, pt: 1.5, borderTop: '1px solid #cbd5e1', textAlign: 'center' }}>
-        <Typography variant="caption" sx={{ fontSize: '0.72rem', lineHeight: 1.7, color: '#475569', display: 'block' }}>
-          This Gate Pass Software is Developed by <strong>Mohd Ateek</strong>. WhatsApp No.{' '}
-          <Link href={`tel:${DEVELOPER_CONTACT}`} sx={{ color: '#1565c0', textDecoration: 'none', fontWeight: 600 }}>
-            {DEVELOPER_CONTACT}
-          </Link>
-          . Visit my website{' '}
-          <Link href={DEVELOPER_PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" sx={{ color: '#1565c0', textDecoration: 'none', fontWeight: 600 }}>
-            {DEVELOPER_PORTFOLIO_URL}
-          </Link>
+      <Box
+        className="gate-pass-print-footer"
+        sx={{ mt: 2, pt: 1.5, borderTop: `1px solid ${C.borderLight}`, textAlign: 'center' }}
+      >
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{ fontSize: '0.72rem', lineHeight: 1.7, color: C.muted }}
+        >
+          This Gate Pass Software is Developed by{' '}
+          <Box component="strong" sx={{ color: C.text }}>Mohd Ateek</Box>. WhatsApp No.{' '}
+          <Box component="span" sx={{ color: C.link, fontWeight: 600 }}>{DEVELOPER_CONTACT}</Box>. Visit my
+          website{' '}
+          <Box component="span" sx={{ color: C.link, fontWeight: 600 }}>{DEVELOPER_PORTFOLIO_URL}</Box>
         </Typography>
       </Box>
     </Box>

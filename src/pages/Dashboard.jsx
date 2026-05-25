@@ -1,60 +1,106 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Chip, Button, Dialog,
   DialogTitle, DialogContent, DialogActions, IconButton, useMediaQuery, useTheme,
-  Card, CardContent
+  Card, CardContent, Avatar
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
+import { ThemeModeContext } from '../context/ThemeContext';
 import GatePassPrintContent from '../components/GatePassPrintContent';
 
-const StatCard = ({ icon, label, value, color, bgColor }) => (
-  <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
-    <Card
-      elevation={0}
-      sx={{
-        borderRadius: 3,
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        height: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
+const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
+  const { mode } = useContext(ThemeModeContext);
+  const isDark = mode === 'dark';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: color }} />
-      <CardContent sx={{ pt: 2.5, pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-              {label}
-            </Typography>
-            <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1.2, mt: 0.5 }}>
-              {value}
-            </Typography>
+      <Card
+        elevation={0}
+        sx={{
+          borderRadius: '20px',
+          border: '1px solid',
+          borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
+          bgcolor: 'background.paper',
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+          boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.04)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            borderColor: 'primary.light',
+            boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.08)' : '0 16px 36px rgba(197, 160, 89, 0.08)',
+          }
+        }}
+      >
+        {/* Visual Accent Top Bar */}
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: color }} />
+        <CardContent sx={{ pt: 3.5, pb: '24px !important', px: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.3 }}>
+                {label}
+              </Typography>
+              <Typography variant="h4" fontWeight={800} sx={{ color: 'text.primary', lineHeight: 1.2, mt: 0.8, letterSpacing: '-0.03em' }}>
+                {value}
+              </Typography>
+              {trend && (
+                <Chip
+                  label={trend}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: '0.65rem',
+                    fontWeight: 800,
+                    bgcolor: bgColor,
+                    color: isDark ? 'text.primary' : 'text.primary',
+                    mt: 1.2,
+                    px: 0.4,
+                    border: '1px solid rgba(255,255,255,0.05)'
+                  }}
+                />
+              )}
+            </Box>
+            <Box
+              sx={{
+                width: 56, height: 56, borderRadius: '16px',
+                bgcolor: bgColor,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.02)'
+              }}
+            >
+              {icon}
+            </Box>
           </Box>
-          <Box sx={{ width: 48, height: 48, borderRadius: '14px', bgcolor: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {icon}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
 
 const Dashboard = () => {
   const [passes, setPasses] = useState([]);
   const [selectedPass, setSelectedPass] = useState(null);
   const [printOpen, setPrintOpen] = useState(false);
+  const { mode } = useContext(ThemeModeContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isDark = mode === 'dark';
 
   useEffect(() => {
     const fetchPasses = async () => {
@@ -87,56 +133,63 @@ const Dashboard = () => {
     }
   }, [printOpen, selectedPass]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Approved': return 'success';
-      case 'Rejected': return 'error';
-      case 'Checked Out': return 'default';
-      default: return 'warning';
-    }
-  };
-
-  const getStatusBg = (status) => {
-    const map = { Approved: '#dcfce7', Rejected: '#fee2e2', Pending: '#fef3c7', 'Checked In': '#e0f2fe', 'Checked Out': '#f1f5f9' };
-    return map[status] || '#f1f5f9';
-  };
-
-  const getStatusTextColor = (status) => {
-    const map = { Approved: '#16a34a', Rejected: '#dc2626', Pending: '#d97706', 'Checked In': '#0284c7', 'Checked Out': '#64748b' };
-    return map[status] || '#64748b';
-  };
-
   return (
-    <Box>
+    <Box className="smooth-scroll-container">
       {/* Page Header */}
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" fontWeight={800} sx={{ color: '#0f172a' }}>
-            My Gate Passes
+      <Box sx={{ mb: 4.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2.5 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={800} sx={{ color: 'text.primary', letterSpacing: '-0.02em', fontSize: '1.45rem' }}>
+            Dashboard
           </Typography>
-          <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5 }}>
-            Track and manage all your visitor pass requests
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontWeight: 600 }}>
+            View and print your gate passes
           </Typography>
         </Box>
-      </motion.div>
+        <Button
+          variant="contained"
+          onClick={() => window.location.href = '/create-pass'}
+          endIcon={<ArrowForwardIcon />}
+          sx={{
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+            boxShadow: '0 4px 16px rgba(197, 160, 89, 0.25)',
+            py: 1.4,
+            px: 3,
+            borderRadius: '14px',
+            fontSize: '0.875rem',
+            fontWeight: 800,
+            '&:hover': {
+              background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%)',
+              boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)',
+              transform: 'translateY(-2px)',
+            },
+            '&:active': { transform: 'translateY(0)' },
+            transition: 'all 0.25s ease',
+          }}
+        >
+          Create New Pass
+        </Button>
+      </Box>
 
-      {/* Stat Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* Stat Cards Grid */}
+      <Grid container spacing={3} sx={{ mb: 4.5 }}>
         {[
           {
-            icon: <AssignmentIcon sx={{ color: '#1976d2', fontSize: 24 }} />,
+            icon: <AssignmentIcon sx={{ color: 'primary.main', fontSize: 26 }} />,
             label: 'Total Passes', value: passes.length,
-            color: '#1976d2', bgColor: '#dbeafe',
+            color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(197, 160, 89, 0.08)',
+            delay: 0.05, trend: ''
           },
           {
-            icon: <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 24 }} />,
-            label: 'Currently Inside', value: passes.filter(p => p.status === 'Checked In').length,
-            color: '#16a34a', bgColor: '#dcfce7',
+            icon: <CheckCircleOutlineIcon sx={{ color: 'success.main', fontSize: 26 }} />,
+            label: 'Checked In', value: passes.filter(p => p.status === 'Checked In').length,
+            color: 'var(--success)', bgColor: 'rgba(16, 185, 129, 0.08)',
+            delay: 0.1, trend: ''
           },
           {
-            icon: <ExitToAppIcon sx={{ color: '#64748b', fontSize: 24 }} />,
+            icon: <ExitToAppIcon sx={{ color: 'text.secondary', fontSize: 26 }} />,
             label: 'Checked Out', value: passes.filter(p => p.status === 'Checked Out').length,
-            color: '#64748b', bgColor: '#f1f5f9',
+            color: 'var(--text-secondary)', bgColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(71, 85, 105, 0.06)',
+            delay: 0.15, trend: ''
           },
         ].map((stat, i) => (
           <Grid item xs={12} sm={4} key={i}>
@@ -145,112 +198,143 @@ const Dashboard = () => {
         ))}
       </Grid>
 
-      {/* Passes Table */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+      {/* Passes Table Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <Paper
           elevation={0}
           sx={{
-            borderRadius: 3,
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            borderRadius: '20px',
+            border: '1px solid',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.05)',
+            bgcolor: 'background.paper',
+            boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
             overflow: 'hidden',
           }}
         >
-          <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9' }}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-              Pass Requests
+          <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
+              My Gate Passes
             </Typography>
           </Box>
 
           <TableContainer sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: isMobile ? 500 : 650 }}>
+            <Table sx={{ minWidth: isMobile ? 550 : 700 }}>
               <TableHead>
-                <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                  {['S.No.', 'GP Number', 'Date', 'Visitor Name', 'Company', 'Status', 'Action'].map((h) => (
-                    <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5 }}>
+                <TableRow>
+                  {['S.No.', 'GP Number', 'Date & Time', 'Visitor Name', 'Company Name', 'Status', 'Action'].map((h) => (
+                    <TableCell key={h} sx={{ py: 2.2 }}>
                       {h}
                     </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {passes.map((pass, idx) => (
-                  <motion.tr
-                    key={pass._id}
-                    component={TableRow}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.04 }}
-                    sx={{
-                      '&:hover': { bgcolor: '#f8fafc' },
-                      '&:last-child td': { border: 0 },
-                      transition: 'background 0.15s',
-                    }}
-                  >
-                    
-                    <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: '0.82rem' }}>
-                      {idx + 1}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1976d2', fontSize: '0.82rem' }}>
-                      {pass.gatePassNumber}
-                    </TableCell>
-                    <TableCell sx={{ color: '#475569', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
-                      {dayjs(pass.date).format('DD MMM YY, HH:mm')}
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#0f172a', fontSize: '0.82rem' }}>
-                      {pass.visitorName}
-                    </TableCell>
-                    <TableCell sx={{ color: '#475569', fontSize: '0.82rem' }}>
-                      {pass.companyName}
-                    </TableCell>
-                    <TableCell>
-                      {pass.status === 'Checked In' ? (
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <span className="pulsing-dot" />
-                          <Typography variant="body2" fontWeight={800} color="#ef4444" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                            INSIDE CAMPUS
+                {passes.map((pass, idx) => {
+                  const initials = pass.visitorName?.charAt(0).toUpperCase() || 'V';
+                  return (
+                    <TableRow
+                      key={pass._id}
+                      component={motion.tr}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.02, duration: 0.3 }}
+                      sx={{
+                        '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
+                        '&:last-child td': { border: 0 },
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
+                        {idx + 1}
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.82rem', letterSpacing: '0.2px' }}>
+                        {pass.gatePassNumber}
+                      </TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.82rem', whiteSpace: 'nowrap', fontWeight: 650 }}>
+                        {dayjs(pass.date).format('DD MMM YYYY, hh:mm A')}
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={1.5}>
+                          <Avatar
+                            sx={{
+                              width: 28, height: 28, fontSize: '0.72rem', fontWeight: 800,
+                              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                              boxShadow: '0 2px 8px rgba(197, 160, 89, 0.15)',
+                              color: 'white'
+                            }}
+                          >
+                            {initials}
+                          </Avatar>
+                          <Typography variant="body2" fontWeight={800} color="text.primary" sx={{ fontSize: '0.82rem' }}>
+                            {pass.visitorName}
                           </Typography>
                         </Box>
-                      ) : pass.status === 'Checked Out' ? (
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <span className="static-dot-green" />
-                          <Typography variant="body2" fontWeight={800} color="#10b981" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                            LEFT CAMPUS
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <span className="static-dot-blue" />
-                          <Typography variant="body2" fontWeight={800} color="#2563eb" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                            EXPECTED / READY
-                          </Typography>
-                        </Box>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        startIcon={<PrintIcon fontSize="small" />}
-                        size="small"
-                        variant="contained"
-                        onClick={() => handlePrintOpen(pass)}
-                        sx={{
-                          borderRadius: '8px', textTransform: 'none',
-                          fontSize: '0.75rem', fontWeight: 600,
-                          py: 0.5, px: 1.5,
-                          background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
-                          '&:hover': { background: 'linear-gradient(135deg, #1976d2, #6d28d9)' },
-                        }}
-                      >
-                        Print
-                      </Button>
-                    </TableCell>
-                  </motion.tr>
-                ))}
+                      </TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.82rem', fontWeight: 650 }}>
+                        {pass.companyName}
+                      </TableCell>
+                      <TableCell>
+                        {pass.status === 'Checked In' ? (
+                          <Box display="inline-flex" alignItems="center" gap={1.2} sx={{ bgcolor: 'rgba(244, 63, 94, 0.08)', px: 1.8, py: 0.7, borderRadius: '10px', border: '1px solid rgba(244, 63, 94, 0.18)' }}>
+                            <span className="pulsing-dot" />
+                            <Typography variant="body2" fontWeight={850} color="error.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.6 }}>
+                              Checked In
+                            </Typography>
+                          </Box>
+                        ) : pass.status === 'Checked Out' ? (
+                          <Box display="inline-flex" alignItems="center" gap={1.2} sx={{ bgcolor: 'rgba(16, 185, 129, 0.08)', px: 1.8, py: 0.7, borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.18)' }}>
+                            <span className="static-dot-green" />
+                            <Typography variant="body2" fontWeight={850} color="success.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.6 }}>
+                              Checked Out
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Box display="inline-flex" alignItems="center" gap={1.2} sx={{ bgcolor: 'rgba(197, 160, 89, 0.08)', px: 1.8, py: 0.7, borderRadius: '10px', border: '1px solid rgba(197, 160, 89, 0.18)' }}>
+                            <span className="static-dot-blue" />
+                            <Typography variant="body2" fontWeight={850} color="primary.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.6 }}>
+                              {pass.status}
+                            </Typography>
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        <Button
+                          startIcon={<PrintIcon sx={{ fontSize: 16 }} />}
+                          size="small"
+                          variant="contained"
+                          onClick={() => handlePrintOpen(pass)}
+                          sx={{
+                            borderRadius: '10px', textTransform: 'none',
+                            fontSize: '0.75rem', fontWeight: 800,
+                            py: 0.7, px: 2,
+                            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                            boxShadow: '0 2px 8px rgba(197, 160, 89, 0.18)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
+                              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.28)',
+                              transform: 'translateY(-1px)'
+                            },
+                            '&:active': { transform: 'translateY(0)' },
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          Print
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {passes.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                      <AssignmentIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
-                      <Typography variant="body2">No gate passes found. Create one to get started!</Typography>
+                    <TableCell colSpan={7} align="center" sx={{ py: 9, color: 'text.secondary' }}>
+                      <AssignmentIcon sx={{ fontSize: 56, mb: 1.8, opacity: 0.18, color: 'primary.main' }} />
+                      <Typography variant="body2" fontWeight={700}>No gate passes found.</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.4 }}>Create a gate pass to get started.</Typography>
                     </TableCell>
                   </TableRow>
                 )}
@@ -274,31 +358,43 @@ const Dashboard = () => {
         maxWidth="md"
         fullWidth
         fullScreen={isMobile}
-        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: isMobile ? 0 : '24px',
+            border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+            bgcolor: 'background.paper',
+            boxShadow: '0 28px 72px rgba(0,0,0,0.5)'
+          }
+        }}
       >
-        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
-          <Typography fontWeight={700}>Gate Pass — {selectedPass?.gatePassNumber}</Typography>
-          <IconButton onClick={() => setPrintOpen(false)} size="small">
+        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1.8, px: 4, pt: 3.5 }}>
+          <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ fontSize: '1.15rem' }}>Print Gate Pass</Typography>
+          <IconButton onClick={() => setPrintOpen(false)} size="small" sx={{ bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff' }}>
+        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff', px: { xs: 2.5, sm: 5 }, py: 3.5 }}>
           {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '8px' }}>
-            Cancel
+        <DialogActions sx={{ px: 4, py: 2.8, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
+          <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 800, color: 'text.secondary' }}>
+            Close
           </Button>
           <Button
             onClick={handlePrint}
             variant="contained"
             startIcon={<PrintIcon />}
             sx={{
-              textTransform: 'none', borderRadius: '8px',
-              background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
+              textTransform: 'none', borderRadius: '12px', fontWeight: 800, py: 1.2, px: 3,
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
+                boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)',
+              }
             }}
           >
-            Print Pass
+            Print
           </Button>
         </DialogActions>
       </Dialog>

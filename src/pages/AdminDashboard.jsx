@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Select, MenuItem,
   FormControl, Dialog, DialogTitle, DialogContent, DialogActions,
   IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip, TextField,
-  Tabs, Tab, InputAdornment, Checkbox
+  Tabs, Tab, InputAdornment, Checkbox, Chip, Avatar
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -15,57 +15,90 @@ import PrintIcon from '@mui/icons-material/Print';
 import CloseIcon from '@mui/icons-material/Close';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import TodayIcon from '@mui/icons-material/Today';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import dayjs from 'dayjs';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
+import { ThemeModeContext } from '../context/ThemeContext';
 import { toast } from 'react-toastify';
 import GatePassPrintContent from '../components/GatePassPrintContent';
 
-const StatCard = ({ icon, label, value, color, bgColor }) => (
-  <motion.div whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}>
-    <Card
-      elevation={0}
-      sx={{
-        borderRadius: 3, border: '1px solid #e2e8f0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        height: '100%', overflow: 'hidden', position: 'relative',
-      }}
-    >
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: color }} />
-      <CardContent sx={{ pt: 2.5, pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-              {label}
-            </Typography>
-            <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1.2, mt: 0.5 }}>
-              {value}
-            </Typography>
-          </Box>
-          <Box sx={{ width: 48, height: 48, borderRadius: '14px', bgcolor: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {icon}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
+const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
+  const { mode } = useContext(ThemeModeContext);
+  const isDark = mode === 'dark';
 
-const getStatusBg = (status) => {
-  const map = { Approved: '#dcfce7', Rejected: '#fee2e2', Pending: '#fef3c7', 'Checked In': '#e0f2fe', 'Checked Out': '#f1f5f9' };
-  return map[status] || '#f1f5f9';
-};
-const getStatusTextColor = (status) => {
-  const map = { Approved: '#16a34a', Rejected: '#dc2626', Pending: '#d97706', 'Checked In': '#0284c7', 'Checked Out': '#64748b' };
-  return map[status] || '#64748b';
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+    >
+      <Card
+        elevation={0}
+        sx={{
+          borderRadius: '20px',
+          border: '1px solid',
+          borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
+          bgcolor: 'background.paper',
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+          boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.04)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            borderColor: 'primary.light',
+            boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.08)' : '0 16px 36px rgba(197, 160, 89, 0.08)',
+          }
+        }}
+      >
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: color }} />
+        <CardContent sx={{ pt: 3.5, pb: '24px !important', px: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.3 }}>
+                {label}
+              </Typography>
+              <Typography variant="h4" fontWeight={800} sx={{ color: 'text.primary', lineHeight: 1.2, mt: 0.8, letterSpacing: '-0.03em' }}>
+                {value}
+              </Typography>
+              {trend && (
+                <Chip
+                  label={trend}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: '0.65rem',
+                    fontWeight: 800,
+                    bgcolor: bgColor,
+                    color: 'text.primary',
+                    mt: 1.2,
+                    border: '1px solid rgba(255,255,255,0.05)'
+                  }}
+                />
+              )}
+            </Box>
+            <Box
+              sx={{
+                width: 56, height: 56, borderRadius: '16px',
+                bgcolor: bgColor,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.02)'
+              }}
+            >
+              {icon}
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
 };
 
 const AdminDashboard = () => {
@@ -86,8 +119,11 @@ const AdminDashboard = () => {
   const [showPasswordFields, setShowPasswordFields] = useState({ current: false, new: false, confirm: false });
   const [changingPassword, setChangingPassword] = useState(false);
   const [selectedPassIds, setSelectedPassIds] = useState([]);
+  const { mode } = useContext(ThemeModeContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const isDark = mode === 'dark';
 
   const filteredPasses = useMemo(() => {
     const q = gpSearch.trim().toLowerCase();
@@ -103,7 +139,28 @@ const AdminDashboard = () => {
 
   const searchFieldSx = {
     minWidth: { xs: '100%', sm: 280 },
-    '& .MuiOutlinedInput-root': { borderRadius: '10px', bgcolor: '#f8fafc', fontSize: '0.875rem' },
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '14px',
+      bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.02)',
+      fontSize: '0.875rem',
+      '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)' },
+      '&:hover fieldset': { borderColor: 'primary.light' },
+      '&.Mui-focused fieldset': { borderColor: 'primary.main', boxShadow: '0 0 10px rgba(197, 160, 89,0.15)' },
+      transition: 'all 0.2s',
+    },
+  };
+
+  const fieldSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '16px',
+      bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.65)',
+      '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)' },
+      '&:hover fieldset': { borderColor: 'primary.light' },
+      '&.Mui-focused fieldset': { borderColor: 'primary.main', boxShadow: '0 0 16px rgba(197, 160, 89,0.2)' },
+      transition: 'all 0.25s ease',
+    },
+    '& .MuiInputLabel-root': { color: 'text.secondary', fontSize: '0.9rem', fontWeight: 650 },
+    '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
   };
 
   const fetchData = async () => {
@@ -153,16 +210,6 @@ const AdminDashboard = () => {
       setQrDataUrl('');
     }
   }, [printOpen, selectedPass]);
-
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      await axios.put(`/api/admin/${id}`, { status: newStatus });
-      toast.success('Status updated successfully');
-      fetchData();
-    } catch {
-      toast.error('Failed to update status');
-    }
-  };
 
   const handleDeletePass = async (id) => {
     if (window.confirm('Are you sure you want to delete this gate pass?')) {
@@ -302,76 +349,74 @@ const AdminDashboard = () => {
   };
 
   const statConfig = [
-    { icon: <PeopleAltIcon sx={{ color: '#1976d2', fontSize: 24 }} />, label: 'Total Passes', value: stats.totalVisitors || 0, color: '#1976d2', bgColor: '#dbeafe' },
-    { icon: <TodayIcon sx={{ color: '#7c3aed', fontSize: 24 }} />, label: "Today's Passes", value: stats.todayVisitors || 0, color: '#7c3aed', bgColor: '#ede9fe' },
-    { icon: <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 24 }} />, label: 'Currently Inside', value: stats.insideVisitors || 0, color: '#16a34a', bgColor: '#dcfce7' },
-    { icon: <ExitToAppIcon sx={{ color: '#64748b', fontSize: 24 }} />, label: 'Checked Out', value: stats.completedVisits || 0, color: '#64748b', bgColor: '#f1f5f9' },
+    { icon: <PeopleAltIcon sx={{ color: 'primary.main', fontSize: 26 }} />, label: 'Total Passes', value: stats.totalVisitors || 0, color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(197, 160, 89, 0.08)', delay: 0.05, trend: 'TOTAL GENERATED' },
+    { icon: <TodayIcon sx={{ color: 'secondary.main', fontSize: 26 }} />, label: "Today's Passes", value: stats.todayVisitors || 0, color: 'var(--secondary)', bgColor: 'rgba(168, 85, 247, 0.08)', delay: 0.1, trend: 'DAILY CLEARED' },
+    { icon: <CheckCircleOutlineIcon sx={{ color: 'success.main', fontSize: 26 }} />, label: 'Checked In', value: stats.insideVisitors || 0, color: 'var(--success)', bgColor: 'rgba(16, 185, 129, 0.08)', delay: 0.15, trend: '' },
+    { icon: <ExitToAppIcon sx={{ color: 'text.secondary', fontSize: 26 }} />, label: 'Checked Out', value: stats.completedVisits || 0, color: 'var(--text-secondary)', bgColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(71, 85, 105, 0.06)', delay: 0.2, trend: 'ARCHIVED RUNS' },
   ];
 
   return (
-    <Box>
+    <Box className="smooth-scroll-container">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-          <Box>
-            <Typography variant="h5" fontWeight={800} sx={{ color: '#0f172a' }}>
-              Admin Dashboard
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5 }}>
-              Manage all visitor gate pass requests
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 1.5, alignSelf: { xs: 'flex-start', sm: 'auto' }, flexWrap: 'wrap' }}>
-            <Button
-              variant="outlined"
-              startIcon={<VpnKeyIcon />}
-              onClick={() => setChangePasswordOpen(true)}
-              sx={{
-                textTransform: 'none', borderRadius: '10px', fontWeight: 700, px: 2, py: 1,
-                borderColor: '#cbd5e1', color: '#475569',
-                '&:hover': { borderColor: '#1976d2', color: '#1976d2', bgcolor: '#eff6ff' },
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Change Password
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => setCreateUserOpen(true)}
-              sx={{
-                textTransform: 'none', borderRadius: '10px',
-                fontWeight: 700, px: 2.5, py: 1,
-                background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
-                boxShadow: '0 4px 16px rgba(25,118,210,0.3)',
-                '&:hover': { background: 'linear-gradient(135deg, #1565c0, #6d28d9)', boxShadow: '0 6px 20px rgba(25,118,210,0.4)', transform: 'translateY(-1px)' },
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              + Create User
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<DownloadIcon />}
-              onClick={handleExport}
-              sx={{
-                textTransform: 'none', borderRadius: '10px',
-                fontWeight: 700, px: 2.5, py: 1,
-                background: 'linear-gradient(135deg, #16a34a, #15803d)',
-                boxShadow: '0 4px 16px rgba(22,163,74,0.3)',
-                '&:hover': { background: 'linear-gradient(135deg, #15803d, #166534)', boxShadow: '0 6px 20px rgba(22,163,74,0.4)', transform: 'translateY(-1px)' },
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Export Excel
-            </Button>
-          </Box>
+      <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: 2.5, mb: 4.5 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={800} sx={{ color: 'text.primary', letterSpacing: '-0.02em', fontSize: '1.45rem' }}>
+            Admin Panel
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontWeight: 600 }}>
+            Manage gate passes, users, and export data
+          </Typography>
         </Box>
-      </motion.div>
+        <Box sx={{ display: 'flex', gap: 1.5, alignSelf: { xs: 'flex-start', sm: 'auto' }, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            startIcon={<VpnKeyIcon />}
+            onClick={() => setChangePasswordOpen(true)}
+            sx={{
+              textTransform: 'none', borderRadius: '12px', fontWeight: 800, px: 2.5, py: 1.2,
+              borderColor: 'divider', color: 'text.secondary',
+              '&:hover': { borderColor: 'primary.main', color: 'primary.main', bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(197, 160, 89,0.03)' },
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Change Password
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => setCreateUserOpen(true)}
+            sx={{
+              textTransform: 'none', borderRadius: '12px',
+              fontWeight: 800, px: 2.8, py: 1.2,
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+              boxShadow: '0 4px 16px rgba(197, 160, 89, 0.25)',
+              '&:hover': { background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%)', boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)', transform: 'translateY(-2px)' },
+              transition: 'all 0.25s ease',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            + Add User
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<DownloadIcon />}
+            onClick={handleExport}
+            sx={{
+              textTransform: 'none', borderRadius: '12px',
+              fontWeight: 800, px: 2.8, py: 1.2,
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              boxShadow: '0 4px 16px rgba(16, 185, 129, 0.25)',
+              '&:hover': { background: 'linear-gradient(135deg, #34d399 0%, #047857 100%)', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.35)', transform: 'translateY(-2px)' },
+              transition: 'all 0.25s ease',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Export to Excel
+          </Button>
+        </Box>
+      </Box>
 
-      {/* Stat Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* Stat Cards Grid */}
+      <Grid container spacing={3} sx={{ mb: 4.5 }}>
         {statConfig.map((stat, i) => (
           <Grid item xs={12} sm={6} md={3} key={i}>
             <StatCard {...stat} />
@@ -380,7 +425,7 @@ const AdminDashboard = () => {
       </Grid>
 
       {/* Navigation Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4.5 }}>
         <Tabs
           value={tabValue}
           onChange={(e, newValue) => setTabValue(newValue)}
@@ -389,11 +434,12 @@ const AdminDashboard = () => {
           sx={{
             '& .MuiTab-root': {
               textTransform: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: '#64748b',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              color: 'text.secondary',
+              pb: 2,
               '&.Mui-selected': {
-                color: '#1976d2',
+                color: 'primary.main',
               }
             }
           }}
@@ -403,326 +449,367 @@ const AdminDashboard = () => {
         </Tabs>
       </Box>
 
-      {tabValue === 0 ? (
-        /* Passes Table */
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: 3, border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
-            }}
-          >
-            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Requests ({filteredPasses.length}{gpSearch.trim() ? ` of ${passes.length}` : ''})
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
-                <TextField
-                  size="small"
-                  placeholder="Search by GP number..."
-                  value={gpSearch}
-                  onChange={(e) => setGpSearch(e.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
-                  sx={searchFieldSx}
-                />
-                {selectedPassIds.length > 0 && (
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={handleBulkDeletePasses}
-                    sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 700, whiteSpace: 'nowrap' }}
-                  >
-                    Delete Selected ({selectedPassIds.length})
-                  </Button>
-                )}
-              </Box>
-            </Box>
-
-            <TableContainer sx={{ overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 700 }}>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    <TableCell padding="checkbox" sx={{ py: 1.5 }}>
-                      <Checkbox
-                        size="small"
-                        checked={allFilteredSelected}
-                        indeterminate={someFilteredSelected}
-                        onChange={toggleSelectAllFiltered}
-                        disabled={filteredPasses.length === 0}
-                      />
-                    </TableCell>
-                    {['S.No.', 'GP Number', 'Date', 'Visitor', 'Requested By', 'Status', 'Actions'].map((h) => (
-                      <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
-                        {h}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredPasses.map((pass, idx) => (
-                    <TableRow
-                      key={pass._id}
-                      component={motion.tr}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: idx * 0.03 }}
-                      sx={{
-                        '&:hover': { bgcolor: '#f8fafc' },
-                        '&:last-child td': { border: 0 },
-                        transition: 'background 0.15s',
-                        bgcolor: selectedPassIds.includes(pass._id) ? '#fef2f2' : 'inherit',
-                      }}
+      {/* Tab Panels */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tabValue}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
+          {tabValue === 0 ? (
+            /* Passes Table */
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: '20px', border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
+                bgcolor: 'background.paper',
+                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
+                overflow: 'hidden',
+              }}
+            >
+              <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
+                <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
+                  All Requests ({filteredPasses.length}{gpSearch.trim() ? ` of ${passes.length}` : ''})
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
+                  <TextField
+                    size="small"
+                    placeholder="Search by GP number..."
+                    value={gpSearch}
+                    onChange={(e) => setGpSearch(e.target.value)}
+                    InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} /></InputAdornment> }}
+                    sx={searchFieldSx}
+                  />
+                  {selectedPassIds.length > 0 && (
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                      onClick={handleBulkDeletePasses}
+                      sx={{ textTransform: 'none', borderRadius: '12px', fontWeight: 800, py: 1.1, px: 2, whiteSpace: 'nowrap' }}
                     >
+                      Delete Selected ({selectedPassIds.length})
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 700 }}>
+                  <TableHead>
+                    <TableRow>
                       <TableCell padding="checkbox">
                         <Checkbox
                           size="small"
-                          checked={selectedPassIds.includes(pass._id)}
-                          onChange={() => togglePassSelection(pass._id)}
+                          checked={allFilteredSelected}
+                          indeterminate={someFilteredSelected}
+                          onChange={toggleSelectAllFiltered}
+                          disabled={filteredPasses.length === 0}
                         />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: '0.82rem' }}>
-                        {idx + 1}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#1976d2', fontSize: '0.82rem' }}>
-                        {pass.gatePassNumber}
-                      </TableCell>
-                      <TableCell sx={{ color: '#475569', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
-                        {dayjs(pass.date).format('DD MMM YY')}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: '#0f172a', fontSize: '0.82rem' }}>
-                        {pass.visitorName}
-                      </TableCell>
-                      <TableCell sx={{ color: '#475569', fontSize: '0.82rem' }}>
-                        {pass.user?.name || '—'}
-                      </TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        {pass.status === 'Checked In' ? (
-                          <Box display="flex" flexDirection="column" gap={0.5}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <span className="pulsing-dot" />
-                              <Typography variant="body2" fontWeight={800} color="#ef4444" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                                INSIDE CAMPUS
-                              </Typography>
-                            </Box>
-                            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
-                                In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
-                              </Typography>
-                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#94a3b8' }}>Out: —</Typography>
-                            </Box>
-                          </Box>
-                        ) : pass.status === 'Checked Out' ? (
-                          <Box display="flex" flexDirection="column" gap={0.5}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <span className="static-dot-green" />
-                              <Typography variant="body2" fontWeight={800} color="#10b981" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                                LEFT CAMPUS
-                              </Typography>
-                            </Box>
-                            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#0284c7' }}>
-                                In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
-                              </Typography>
-                              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b' }}>
-                                Out: {pass.outTime ? dayjs(pass.outTime).format('hh:mm A') : '—'}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        ) : (
-                          <Box display="flex" flexDirection="column" gap={0.5}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <span className="static-dot-blue" />
-                              <Typography variant="body2" fontWeight={800} color="#2563eb" sx={{ fontSize: '0.75rem', letterSpacing: 0.3 }}>
-                                EXPECTED / READY
-                              </Typography>
-                            </Box>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                              Authorized Pass
-                            </Typography>
-                          </Box>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Box display="flex" gap={1} alignItems="center">
-                          <Tooltip title="Print Pass">
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<PrintIcon fontSize="small" />}
-                              onClick={() => handlePrintOpen(pass)}
-                              sx={{
-                                borderRadius: '8px', textTransform: 'none',
-                                fontSize: '0.75rem', fontWeight: 600, py: 0.6,
-                                whiteSpace: 'nowrap',
-                                background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
-                                '&:hover': { background: 'linear-gradient(135deg, #1976d2, #6d28d9)' },
-                              }}
-                            >
-                              Print
-                            </Button>
-                          </Tooltip>
-                          <Tooltip title="Delete Gate Pass">
-                            <IconButton
-                              onClick={() => handleDeletePass(pass._id)}
-                              sx={{
-                                color: '#ef4444',
-                                border: '1px solid #fee2e2',
-                                borderRadius: '8px',
-                                p: '6px',
-                                '&:hover': {
-                                  bgcolor: '#fee2e2'
-                                }
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
+                      {['S.No.', 'GP Number', 'Date', 'Visitor Name', 'Created By', 'Status', 'Actions'].map((h) => (
+                        <TableCell key={h} sx={{ whiteSpace: 'nowrap', py: 2.2 }}>
+                          {h}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                  {filteredPasses.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                        <PeopleAltIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
-                        <Typography variant="body2">
-                          {passes.length === 0 ? 'No gate pass requests found' : `No gate pass matching "${gpSearch.trim()}"`}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </motion.div>
-      ) : (
-        /* User Management Table */
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: 3, border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
-            }}
-          >
-            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
-              <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
-                All Registered Users ({filteredUsers.length}{userSearch.trim() ? ` of ${users.length}` : ''})
-              </Typography>
-              <TextField
-                size="small"
-                placeholder="Search by name or email..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} /></InputAdornment> }}
-                sx={searchFieldSx}
-              />
-            </Box>
-
-            <TableContainer sx={{ overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 700 }}>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    {['S.No.', 'Name', 'User ID (Email)', 'Password', 'Role', 'Actions'].map((h) => (
-                      <TableCell key={h} sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5, py: 1.5, whiteSpace: 'nowrap' }}>
-                        {h}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredUsers.map((user, idx) => (
-                    <TableRow
-                      key={user._id}
-                      component={motion.tr}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: idx * 0.03 }}
-                      sx={{
-                        '&:hover': { bgcolor: '#f8fafc' },
-                        '&:last-child td': { border: 0 },
-                        transition: 'background 0.15s',
-                      }}
-                    >
-                      <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: '0.82rem' }}>
-                        {idx + 1}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem' }}>
-                        {user.name}
-                      </TableCell>
-                      <TableCell sx={{ color: '#475569', fontSize: '0.82rem' }}>
-                        {user.email}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.82rem' }}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Typography variant="body2" sx={{ fontFamily: showPasswords[user._id] ? 'inherit' : 'monospace', color: '#334155' }}>
-                            {showPasswords[user._id] ? (user.plainPassword || '—') : '••••••••'}
-                          </Typography>
-                          {user.plainPassword && (
-                            <>
-                              <IconButton size="small" onClick={() => togglePasswordVisibility(user._id)}>
-                                {showPasswords[user._id] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                              </IconButton>
-                              <Tooltip title="Copy Password">
-                                <IconButton size="small" onClick={() => {
-                                  navigator.clipboard.writeText(user.plainPassword);
-                                  toast.success('Password copied to clipboard');
-                                }}>
-                                  <ContentCopyIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          )}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box
+                  </TableHead>
+                  <TableBody>
+                    {filteredPasses.map((pass, idx) => {
+                      const initials = pass.visitorName?.charAt(0).toUpperCase() || 'V';
+                      return (
+                        <TableRow
+                          key={pass._id}
+                          component={motion.tr}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: idx * 0.02, duration: 0.3 }}
                           sx={{
-                            display: 'inline-flex', alignItems: 'center', px: 1.2, py: 0.4,
-                            borderRadius: '6px', bgcolor: user.role === 'admin' ? '#ede9fe' : '#e2e8f0',
-                            color: user.role === 'admin' ? '#7c3aed' : '#475569',
-                            fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap',
+                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
+                            '&:last-child td': { border: 0 },
+                            transition: 'background-color 0.2s ease',
+                            bgcolor: selectedPassIds.includes(pass._id) ? (isDark ? 'rgba(244,63,94,0.06)' : '#fff1f2') : 'inherit',
                           }}
                         >
-                          {user.role}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={user.email === 'admin@gatepass.com' ? 'Cannot delete system admin' : 'Delete User'}>
-                          <span>
-                            <IconButton
-                              onClick={() => handleDeleteUser(user._id)}
-                              disabled={user.email === 'admin@gatepass.com'}
-                              sx={{
-                                color: '#ef4444',
-                                '&.Mui-disabled': { color: '#cbd5e1' }
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filteredUsers.length === 0 && (
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              size="small"
+                              checked={selectedPassIds.includes(pass._id)}
+                              onChange={() => togglePassSelection(pass._id)}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.82rem', letterSpacing: '0.2px' }}>
+                            {pass.gatePassNumber}
+                          </TableCell>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.82rem', whiteSpace: 'nowrap', fontWeight: 650 }}>
+                            {dayjs(pass.date).format('DD MMM YYYY')}
+                          </TableCell>
+                          <TableCell>
+                            <Box display="flex" alignItems="center" gap={1.2}>
+                              <Avatar
+                                sx={{
+                                  width: 26, height: 26, fontSize: '0.68rem', fontWeight: 800,
+                                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                                  color: 'white'
+                                }}
+                              >
+                                {initials}
+                              </Avatar>
+                              <Typography variant="body2" fontWeight={800} color="text.primary" sx={{ fontSize: '0.82rem' }}>
+                                {pass.visitorName}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.82rem', fontWeight: 650 }}>
+                            {pass.user?.name || '—'}
+                          </TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            {pass.status === 'Checked In' ? (
+                              <Box display="flex" flexDirection="column" gap={0.5}>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <span className="pulsing-dot" />
+                                  <Typography variant="body2" fontWeight={850} color="error.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.4 }}>
+                                    Checked In
+                                  </Typography>
+                                </Box>
+                                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'primary.main' }}>
+                                  In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
+                                </Typography>
+                              </Box>
+                            ) : pass.status === 'Checked Out' ? (
+                              <Box display="flex" flexDirection="column" gap={0.5}>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <span className="static-dot-green" />
+                                  <Typography variant="body2" fontWeight={850} color="success.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.4 }}>
+                                    Checked Out
+                                  </Typography>
+                                </Box>
+                                <Box display="flex" gap={1.5}>
+                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600, color: 'primary.main' }}>
+                                    In: {pass.checkInTime ? dayjs(pass.checkInTime).format('hh:mm A') : '—'}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 650, color: 'text.secondary' }}>
+                                    Out: {pass.outTime ? dayjs(pass.outTime).format('hh:mm A') : '—'}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            ) : (
+                              <Box display="flex" flexDirection="column" gap={0.5}>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <span className="static-dot-blue" />
+                                  <Typography variant="body2" fontWeight={850} color="primary.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.4 }}>
+                                    {pass.status}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Box display="flex" gap={1} alignItems="center">
+                              <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<PrintIcon sx={{ fontSize: 14 }} />}
+                                onClick={() => handlePrintOpen(pass)}
+                                sx={{
+                                  borderRadius: '10px', textTransform: 'none',
+                                  fontSize: '0.75rem', fontWeight: 800, py: 0.7, px: 2,
+                                  whiteSpace: 'nowrap',
+                                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                                  '&:hover': { background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))' },
+                                }}
+                              >
+                                Print
+                              </Button>
+                              <Tooltip title="Delete Permanently">
+                                <IconButton
+                                  onClick={() => handleDeletePass(pass._id)}
+                                  sx={{
+                                    color: 'error.main',
+                                    border: '1px solid',
+                                    borderColor: isDark ? 'rgba(244,63,94,0.15)' : '#fee2e2',
+                                    borderRadius: '10px',
+                                    p: '6px',
+                                    '&:hover': { bgcolor: 'rgba(244,63,94,0.08)' }
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {filteredPasses.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center" sx={{ py: 9, color: 'text.secondary' }}>
+                          <PeopleAltIcon sx={{ fontSize: 56, mb: 1.8, opacity: 0.15, color: 'primary.main' }} />
+                          <Typography variant="body2" fontWeight={700}>
+                            {passes.length === 0 ? 'No gate passes found' : `No gate pass matching "${gpSearch.trim()}"`}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          ) : (
+            /* User Management Table */
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: '20px', border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
+                bgcolor: 'background.paper',
+                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
+                overflow: 'hidden',
+              }}
+            >
+              <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
+                <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
+                  All Registered Users ({filteredUsers.length}{userSearch.trim() ? ` of ${users.length}` : ''})
+                </Typography>
+                <TextField
+                  size="small"
+                  placeholder="Search by name or email..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} /></InputAdornment> }}
+                  sx={searchFieldSx}
+                />
+              </Box>
+
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 700 }}>
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                        <Typography variant="body2">
-                          {users.length === 0 ? 'No registered users found' : `No user matching "${userSearch.trim()}"`}
-                        </Typography>
-                      </TableCell>
+                      {['S.No.', 'Name', 'Email', 'Password', 'Role', 'Actions'].map((h) => (
+                        <TableCell key={h} sx={{ whiteSpace: 'nowrap', py: 2.2 }}>
+                          {h}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+                  </TableHead>
+                  <TableBody>
+                    {filteredUsers.map((user, idx) => {
+                      const operatorInitials = user.name?.charAt(0).toUpperCase() || 'O';
+                      return (
+                        <TableRow
+                          key={user._id}
+                          component={motion.tr}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: idx * 0.02, duration: 0.3 }}
+                          sx={{
+                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
+                            '&:last-child td': { border: 0 },
+                            transition: 'background-color 0.2s ease',
+                          }}
+                        >
+                          <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Box display="flex" alignItems="center" gap={1.2}>
+                              <Avatar
+                                sx={{
+                                  width: 26, height: 26, fontSize: '0.68rem', fontWeight: 800,
+                                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                                  color: 'white'
+                                }}
+                              >
+                                {operatorInitials}
+                              </Avatar>
+                              <Typography variant="body2" fontWeight={800} color="text.primary" sx={{ fontSize: '0.82rem' }}>
+                                {user.name}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.82rem', fontWeight: 650 }}>
+                            {user.email}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.82rem' }}>
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <Typography variant="body2" sx={{ fontFamily: showPasswords[user._id] ? 'inherit' : 'monospace', color: 'text.primary', fontWeight: 700 }}>
+                                {showPasswords[user._id] ? (user.plainPassword || '—') : '••••••••'}
+                              </Typography>
+                              {user.plainPassword && (
+                                <>
+                                  <IconButton size="small" onClick={() => togglePasswordVisibility(user._id)} sx={{ color: 'text.secondary' }}>
+                                    {showPasswords[user._id] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                                  </IconButton>
+                                  <Tooltip title="Copy to Clipboard">
+                                    <IconButton size="small" onClick={() => {
+                                      navigator.clipboard.writeText(user.plainPassword);
+                                      toast.success('Password copied');
+                                    }} sx={{ color: 'text.secondary' }}>
+                                      <ContentCopyIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
+                              )}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={user.role.toUpperCase()}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.65rem',
+                                bgcolor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.08)' : 'rgba(197, 160, 89, 0.08)',
+                                color: user.role === 'admin' ? 'secondary.main' : 'primary.main',
+                                border: '1px solid',
+                                borderColor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.15)' : 'rgba(197, 160, 89, 0.15)',
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={user.email === 'admin@gatepass.com' ? 'Cannot delete admin' : 'Delete user'}>
+                              <span>
+                                <IconButton
+                                  onClick={() => handleDeleteUser(user._id)}
+                                  disabled={user.email === 'admin@gatepass.com'}
+                                  sx={{
+                                    color: 'error.main',
+                                    '&.Mui-disabled': { color: 'divider' },
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    borderRadius: '10px',
+                                    p: '6px',
+                                    '&:hover:not(:disabled)': { bgcolor: 'rgba(244,63,94,0.08)' }
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {filteredUsers.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center" sx={{ py: 9, color: 'text.secondary' }}>
+                          <Typography variant="body2" fontWeight={750}>
+                            {users.length === 0 ? 'No users found' : `No user matching "${userSearch.trim()}"`}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          )}
         </motion.div>
-      )}
+      </AnimatePresence>
 
       {/* Hidden QR Canvas for print data URL generation */}
       {printOpen && selectedPass && (
@@ -738,101 +825,99 @@ const AdminDashboard = () => {
         maxWidth="md"
         fullWidth
         fullScreen={isMobile}
-        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: isMobile ? 0 : '24px',
+            border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+            bgcolor: 'background.paper',
+            boxShadow: '0 28px 72px rgba(0,0,0,0.5)'
+          }
+        }}
       >
-        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
-          <Typography fontWeight={700}>Gate Pass — {selectedPass?.gatePassNumber}</Typography>
-          <IconButton onClick={() => setPrintOpen(false)} size="small">
+        <DialogTitle className="no-print" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1.8, px: 4, pt: 3.5 }}>
+          <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ fontSize: '1.15rem' }}>Print Gate Pass</Typography>
+          <IconButton onClick={() => setPrintOpen(false)} size="small" sx={{ bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff' }}>
+        <DialogContent dividers id="printable-area" sx={{ bgcolor: '#fff', px: { xs: 2.5, sm: 5 }, py: 3.5 }}>
           {selectedPass && <GatePassPrintContent pass={selectedPass} qrDataUrl={qrDataUrl} />}
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '8px' }}>
-            Cancel
+        <DialogActions sx={{ px: 4, py: 2.8, bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
+          <Button onClick={() => setPrintOpen(false)} sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 800, color: 'text.secondary' }}>
+            Close
           </Button>
           <Button
             onClick={handlePrint}
             variant="contained"
             startIcon={<PrintIcon />}
             sx={{
-              textTransform: 'none', borderRadius: '8px',
-              background: 'linear-gradient(135deg, #1565c0, #7c3aed)',
+              textTransform: 'none', borderRadius: '12px', fontWeight: 800, py: 1.2, px: 3,
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
+                boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)',
+              }
             }}
           >
-            Print Pass
+            Print
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Create User Dialog */}
+      {/* Register Operator Dialog */}
       <Dialog
         open={createUserOpen}
         onClose={handleCloseCreateUser}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+            boxShadow: '0 28px 72px rgba(0,0,0,0.5)',
+            p: 1.5
+          }
+        }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography fontWeight={700}>Create New User</Typography>
-          <IconButton onClick={handleCloseCreateUser} size="small">
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1.5 }}>
+          <Typography variant="h6" fontWeight={800} sx={{ fontSize: '1.2rem', letterSpacing: '-0.01em' }}>Create User</Typography>
+          <IconButton onClick={handleCloseCreateUser} size="small" sx={{ bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent sx={{ pt: '12px !important' }}>
           {createdUser ? (
-            <Box textAlign="center" py={2}>
-              <CheckCircleOutlineIcon sx={{ color: '#16a34a', fontSize: 48, mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} gutterBottom>User Created Successfully!</Typography>
-              <Typography variant="body2" color="text.secondary" mb={3}>
-                Please copy these credentials and share them with the user. They will not be shown again.
-              </Typography>
-              <Box sx={{ bgcolor: '#f8fafc', p: 2, borderRadius: 2, border: '1px solid #e2e8f0', textAlign: 'left' }}>
-                <Typography variant="body2" sx={{ mb: 1 }}><strong>User ID (Email):</strong> {createdUser.email}</Typography>
-                <Typography variant="body2"><strong>Password:</strong> {createdUser.password}</Typography>
-              </Box>
-              <Button
-                variant="outlined"
-                sx={{ mt: 3, textTransform: 'none', borderRadius: '8px' }}
-                onClick={() => {
-                  navigator.clipboard.writeText(`User ID: ${createdUser.email}\nPassword: ${createdUser.password}`);
-                  toast.success('Credentials copied to clipboard');
-                }}
-              >
-                Copy Credentials
-              </Button>
+            <Box sx={{ p: 2.5, bgcolor: isDark ? 'rgba(16, 185, 129, 0.06)' : 'rgba(16, 185, 129, 0.03)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.15)', mb: 1 }}>
+              <Typography variant="subtitle2" color="success.main" fontWeight={800} gutterBottom>✓ User Created!</Typography>
+              <Typography variant="body2" sx={{ mt: 1.5, fontWeight: 700 }} color="text.primary">Email: {createdUser.email}</Typography>
+              <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 700 }} color="text.primary">Password: {createdUser.password}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5, fontWeight: 600 }}>Please save these credentials.</Typography>
             </Box>
           ) : (
-            <Box display="flex" flexDirection="column" gap={2} pt={1}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.8, mt: 1 }}>
               <TextField
-                label="Full Name"
-                fullWidth
-                size="small"
-                value={newUser.name}
-                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                fullWidth label="Name" placeholder="Enter name"
+                value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                sx={fieldSx}
               />
               <TextField
-                label="Email"
-                type="email"
-                fullWidth
-                size="small"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                fullWidth label="Email" placeholder="Enter email"
+                value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                sx={fieldSx}
               />
               <TextField
-                label="Password"
-                type="text"
-                fullWidth
-                size="small"
-                value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                fullWidth label="Password" placeholder="At least 6 characters"
+                value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                sx={fieldSx}
               />
-              <FormControl fullWidth size="small">
+              <FormControl fullWidth sx={fieldSx}>
                 <Select
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  displayEmpty
+                  sx={{ borderRadius: '16px' }}
                 >
                   <MenuItem value="user">User</MenuItem>
                   <MenuItem value="admin">Admin</MenuItem>
@@ -843,21 +928,24 @@ const AdminDashboard = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           {createdUser ? (
-            <Button onClick={handleCloseCreateUser} variant="contained" sx={{ textTransform: 'none', borderRadius: '8px' }}>
-              Done
+            <Button onClick={handleCloseCreateUser} variant="contained" fullWidth sx={{ borderRadius: '12px', py: 1.2, fontWeight: 800 }}>
+              Close
             </Button>
           ) : (
             <>
-              <Button onClick={handleCloseCreateUser} sx={{ textTransform: 'none' }}>
+              <Button onClick={handleCloseCreateUser} sx={{ fontWeight: 800, color: 'text.secondary' }}>
                 Cancel
               </Button>
               <Button
-                onClick={handleCreateUser}
                 variant="contained"
-                disabled={!newUser.name || !newUser.email || !newUser.password}
+                onClick={handleCreateUser}
                 sx={{
-                  textTransform: 'none', borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #1976d2, #7c3aed)',
+                  borderRadius: '12px', py: 1.2, px: 3, fontWeight: 800,
+                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                  boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
+                  }
                 }}
               >
                 Create User
@@ -867,51 +955,100 @@ const AdminDashboard = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={changePasswordOpen} onClose={handleCloseChangePassword} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LockOutlinedIcon sx={{ color: '#1976d2' }} />
-            <Typography fontWeight={700}>Change Your Password</Typography>
-          </Box>
-          <IconButton onClick={handleCloseChangePassword} size="small"><CloseIcon fontSize="small" /></IconButton>
+      {/* Change Password Dialog */}
+      <Dialog
+        open={changePasswordOpen}
+        onClose={handleCloseChangePassword}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+            boxShadow: '0 28px 72px rgba(0,0,0,0.5)',
+            p: 1.5
+          }
+        }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1.5 }}>
+          <Typography variant="h6" fontWeight={800} sx={{ fontSize: '1.2rem', letterSpacing: '-0.01em' }}>Change Password</Typography>
+          <IconButton onClick={handleCloseChangePassword} size="small" sx={{ bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
-          <Box display="flex" flexDirection="column" gap={2} pt={1}>
-            {[
-              { key: 'current', label: 'Current Password', field: 'currentPassword' },
-              { key: 'new', label: 'New Password', field: 'newPassword' },
-              { key: 'confirm', label: 'Confirm New Password', field: 'confirmPassword' },
-            ].map(({ key, label, field }) => (
-              <TextField
-                key={key}
-                label={label}
-                type={showPasswordFields[key] ? 'text' : 'password'}
-                fullWidth
-                size="small"
-                value={passwordForm[field]}
-                onChange={(e) => setPasswordForm({ ...passwordForm, [field]: e.target.value })}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => setShowPasswordFields((p) => ({ ...p, [key]: !p[key] }))} edge="end">
-                        {showPasswordFields[key] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            ))}
+        <DialogContent sx={{ pt: '12px !important' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.8, mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Current Password"
+              type={showPasswordFields.current ? 'text' : 'password'}
+              value={passwordForm.currentPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setShowPasswordFields({ ...showPasswordFields, current: !showPasswordFields.current })}>
+                      {showPasswordFields.current ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+              sx={fieldSx}
+            />
+            <TextField
+              fullWidth
+              label="New Password"
+              type={showPasswordFields.new ? 'text' : 'password'}
+              value={passwordForm.newPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setShowPasswordFields({ ...showPasswordFields, new: !showPasswordFields.new })}>
+                      {showPasswordFields.new ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+              sx={fieldSx}
+            />
+            <TextField
+              fullWidth
+              label="Confirm New Password"
+              type={showPasswordFields.confirm ? 'text' : 'password'}
+              value={passwordForm.confirmPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setShowPasswordFields({ ...showPasswordFields, confirm: !showPasswordFields.confirm })}>
+                      {showPasswordFields.confirm ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+              sx={fieldSx}
+            />
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={handleCloseChangePassword} disabled={changingPassword} sx={{ textTransform: 'none' }}>Cancel</Button>
+          <Button onClick={handleCloseChangePassword} disabled={changingPassword} sx={{ fontWeight: 800, color: 'text.secondary' }}>
+            Cancel
+          </Button>
           <Button
-            onClick={handleChangePassword}
             variant="contained"
-            disabled={changingPassword || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-            sx={{ textTransform: 'none', borderRadius: '8px', background: 'linear-gradient(135deg, #1976d2, #7c3aed)' }}
+            disabled={changingPassword}
+            onClick={handleChangePassword}
+            sx={{
+              borderRadius: '12px', py: 1.2, px: 3, fontWeight: 800,
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
+              }
+            }}
           >
-            {changingPassword ? 'Updating...' : 'Update Password'}
+            {changingPassword ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Change Password'}
           </Button>
         </DialogActions>
       </Dialog>
