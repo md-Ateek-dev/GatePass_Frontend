@@ -52,7 +52,7 @@ const Login = () => {
         justifyContent: 'center',
         background: isDark
           ? 'radial-gradient(ellipse at 30% 20%, #1a2d4a 0%, #080c14 55%, #050810 100%)'
-          : 'radial-gradient(ellipse at 30% 20%, #f8f6f2 0%, #ebe6dc 50%, #e2ddd2 100%)',
+          : 'radial-gradient(ellipse at 30% 20%, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%)',
         p: { xs: 3, sm: 4 },
         position: 'relative',
         overflow: 'hidden',

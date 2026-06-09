@@ -12,6 +12,19 @@ export const luxuryPalette = {
   slate: '#64748b',
   emerald: '#0d9488',
   rose: '#be123c',
+
+  // Premium Light Theme Palette (High contrast slate & burnished gold)
+  lightBg: '#f8fafc',
+  lightPaper: '#ffffff',
+  lightPrimary: '#0f172a',
+  lightPrimaryMid: '#1e293b',
+  lightPrimaryLight: '#334155',
+  lightSecondary: '#926f2f',
+  lightSecondaryLight: '#b59049',
+  lightSecondaryDark: '#75541c',
+  lightTextPrimary: '#0f172a',
+  lightTextSecondary: '#475569',
+  lightBorder: 'rgba(15, 23, 42, 0.08)',
 };
 
 export const luxuryGradients = {
