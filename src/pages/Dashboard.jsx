@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Chip, Button, Dialog,
   DialogTitle, DialogContent, DialogActions, IconButton, useMediaQuery, useTheme,
-  Card, CardContent, Avatar
+  Card, CardContent, Avatar, TablePagination, CircularProgress
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -93,8 +93,14 @@ const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
   );
 };
 
+const ROWS_PER_PAGE = 15;
+
 const Dashboard = () => {
   const [passes, setPasses] = useState([]);
+  const [stats, setStats] = useState({ total: 0, checkedIn: 0, checkedOut: 0 });
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [selectedPass, setSelectedPass] = useState(null);
   const [printOpen, setPrintOpen] = useState(false);
   const { mode } = useContext(ThemeModeContext);
@@ -103,18 +109,34 @@ const Dashboard = () => {
   const isDark = mode === 'dark';
 
   useEffect(() => {
-    const fetchPasses = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const { data } = await axios.get('/api/gatepass');
-        setPasses(data);
+        const [passesRes, statsRes] = await Promise.all([
+          axios.get('/api/gatepass', { params: { page: page + 1, limit: ROWS_PER_PAGE } }),
+          axios.get('/api/gatepass/stats'),
+        ]);
+        setPasses(passesRes.data.passes);
+        setTotalCount(passesRes.data.pagination.total);
+        setStats(statsRes.data);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchPasses();
-  }, []);
+    fetchData();
+  }, [page]);
 
-  const handlePrintOpen = (pass) => { setSelectedPass(pass); setPrintOpen(true); };
+  const handlePrintOpen = async (pass) => {
+    try {
+      const { data } = await axios.get(`/api/gatepass/${pass._id}`);
+      setSelectedPass(data);
+      setPrintOpen(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const handlePrint = () => window.print();
 
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -175,19 +197,19 @@ const Dashboard = () => {
         {[
           {
             icon: <AssignmentIcon sx={{ color: 'primary.main', fontSize: 26 }} />,
-            label: 'Total Passes', value: passes.length,
+            label: 'Total Passes', value: stats.total,
             color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(197, 160, 89, 0.08)',
             delay: 0.05, trend: ''
           },
           {
             icon: <CheckCircleOutlineIcon sx={{ color: 'success.main', fontSize: 26 }} />,
-            label: 'Checked In', value: passes.filter(p => p.status === 'Checked In').length,
+            label: 'Checked In', value: stats.checkedIn,
             color: 'var(--success)', bgColor: 'rgba(16, 185, 129, 0.08)',
             delay: 0.1, trend: ''
           },
           {
             icon: <ExitToAppIcon sx={{ color: 'text.secondary', fontSize: 26 }} />,
-            label: 'Checked Out', value: passes.filter(p => p.status === 'Checked Out').length,
+            label: 'Checked Out', value: stats.checkedOut,
             color: 'var(--text-secondary)', bgColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(71, 85, 105, 0.06)',
             delay: 0.15, trend: ''
           },
@@ -234,15 +256,18 @@ const Dashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {passes.map((pass, idx) => {
+                {loading && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
+                      <CircularProgress size={28} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!loading && passes.map((pass, idx) => {
                   const initials = pass.visitorName?.charAt(0).toUpperCase() || 'V';
                   return (
                     <TableRow
                       key={pass._id}
-                      component={motion.tr}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.02, duration: 0.3 }}
                       sx={{
                         '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
                         '&:last-child td': { border: 0 },
@@ -250,7 +275,7 @@ const Dashboard = () => {
                       }}
                     >
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
-                        {idx + 1}
+                        {page * ROWS_PER_PAGE + idx + 1}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.82rem', letterSpacing: '0.2px' }}>
                         {pass.gatePassNumber}
@@ -329,7 +354,7 @@ const Dashboard = () => {
                     </TableRow>
                   );
                 })}
-                {passes.length === 0 && (
+                {!loading && passes.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} align="center" sx={{ py: 9, color: 'text.secondary' }}>
                       <AssignmentIcon sx={{ fontSize: 56, mb: 1.8, opacity: 0.18, color: 'primary.main' }} />
@@ -341,6 +366,14 @@ const Dashboard = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            rowsPerPage={ROWS_PER_PAGE}
+            rowsPerPageOptions={[ROWS_PER_PAGE]}
+          />
         </Paper>
       </motion.div>
 

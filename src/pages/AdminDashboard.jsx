@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Grid, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Select, MenuItem,
   FormControl, Dialog, DialogTitle, DialogContent, DialogActions,
   IconButton, Card, CardContent, useMediaQuery, useTheme, Tooltip, TextField,
-  Tabs, Tab, InputAdornment, Checkbox, Chip, Avatar
+  Tabs, Tab, InputAdornment, Checkbox, Chip, Avatar, TablePagination, CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -27,6 +27,10 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { ThemeModeContext } from '../context/ThemeContext';
 import { toast } from 'react-toastify';
 import GatePassPrintContent from '../components/GatePassPrintContent';
+import { useDebounce } from '../hooks/useDebounce';
+
+const PASSES_PER_PAGE = 20;
+const USERS_PER_PAGE = 15;
 
 const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
   const { mode } = useContext(ThemeModeContext);
@@ -114,6 +118,14 @@ const AdminDashboard = () => {
   const [showPasswords, setShowPasswords] = useState({});
   const [gpSearch, setGpSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [passPage, setPassPage] = useState(0);
+  const [userPage, setUserPage] = useState(0);
+  const [passTotal, setPassTotal] = useState(0);
+  const [userTotal, setUserTotal] = useState(0);
+  const [loadingPasses, setLoadingPasses] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const debouncedGpSearch = useDebounce(gpSearch);
+  const debouncedUserSearch = useDebounce(userSearch);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [showPasswordFields, setShowPasswordFields] = useState({ current: false, new: false, confirm: false });
@@ -124,18 +136,6 @@ const AdminDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const isDark = mode === 'dark';
-
-  const filteredPasses = useMemo(() => {
-    const q = gpSearch.trim().toLowerCase();
-    if (!q) return passes;
-    return passes.filter((p) => p.gatePassNumber?.toLowerCase().includes(q));
-  }, [passes, gpSearch]);
-
-  const filteredUsers = useMemo(() => {
-    const q = userSearch.trim().toLowerCase();
-    if (!q) return users;
-    return users.filter((u) => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
-  }, [users, userSearch]);
 
   const searchFieldSx = {
     minWidth: { xs: '100%', sm: 280 },
@@ -163,36 +163,87 @@ const AdminDashboard = () => {
     '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
   };
 
-  const fetchData = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      const [passesRes, statsRes] = await Promise.all([
-        axios.get('/api/admin'),
-        axios.get('/api/admin/stats'),
-      ]);
-      setPasses(passesRes.data);
-      setStats(statsRes.data);
+      const { data } = await axios.get('/api/admin/stats');
+      setStats(data);
     } catch (error) {
       console.error(error);
-      toast.error('Failed to load data');
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchPasses = useCallback(async () => {
+    setLoadingPasses(true);
     try {
-      const res = await axios.get('/api/admin/users');
-      setUsers(res.data);
+      const { data } = await axios.get('/api/admin', {
+        params: {
+          page: passPage + 1,
+          limit: PASSES_PER_PAGE,
+          search: debouncedGpSearch.trim() || undefined,
+        },
+      });
+      setPasses(data.passes);
+      setPassTotal(data.pagination.total);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to load gate passes');
+    } finally {
+      setLoadingPasses(false);
+    }
+  }, [passPage, debouncedGpSearch]);
+
+  const fetchUsers = useCallback(async () => {
+    setLoadingUsers(true);
+    try {
+      const { data } = await axios.get('/api/admin/users', {
+        params: {
+          page: userPage + 1,
+          limit: USERS_PER_PAGE,
+          search: debouncedUserSearch.trim() || undefined,
+        },
+      });
+      setUsers(data.users);
+      setUserTotal(data.pagination.total);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load users');
+    } finally {
+      setLoadingUsers(false);
     }
-  };
+  }, [userPage, debouncedUserSearch]);
 
   useEffect(() => {
-    fetchData();
-    fetchUsers();
-  }, []);
+    fetchStats();
+  }, [fetchStats]);
 
-  const handlePrintOpen = (pass) => { setSelectedPass(pass); setPrintOpen(true); };
+  useEffect(() => {
+    fetchPasses();
+  }, [fetchPasses]);
+
+  useEffect(() => {
+    if (tabValue === 1) {
+      fetchUsers();
+    }
+  }, [tabValue, fetchUsers]);
+
+  useEffect(() => {
+    setPassPage(0);
+  }, [debouncedGpSearch]);
+
+  useEffect(() => {
+    setUserPage(0);
+  }, [debouncedUserSearch]);
+
+  const handlePrintOpen = async (pass) => {
+    try {
+      const { data } = await axios.get(`/api/gatepass/${pass._id}`);
+      setSelectedPass(data);
+      setPrintOpen(true);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to load gate pass for printing');
+    }
+  };
   const handlePrint = () => window.print();
 
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -217,7 +268,8 @@ const AdminDashboard = () => {
         await axios.delete(`/api/admin/${id}`);
         toast.success('Gate pass deleted successfully');
         setSelectedPassIds((prev) => prev.filter((pid) => pid !== id));
-        fetchData();
+        fetchPasses();
+        fetchStats();
       } catch {
         toast.error('Failed to delete gate pass');
       }
@@ -230,18 +282,18 @@ const AdminDashboard = () => {
     );
   };
 
-  const allFilteredSelected =
-    filteredPasses.length > 0 && filteredPasses.every((p) => selectedPassIds.includes(p._id));
+  const allPageSelected =
+    passes.length > 0 && passes.every((p) => selectedPassIds.includes(p._id));
 
-  const someFilteredSelected =
-    filteredPasses.some((p) => selectedPassIds.includes(p._id)) && !allFilteredSelected;
+  const somePageSelected =
+    passes.some((p) => selectedPassIds.includes(p._id)) && !allPageSelected;
 
-  const toggleSelectAllFiltered = () => {
-    if (allFilteredSelected) {
-      const visibleIds = new Set(filteredPasses.map((p) => p._id));
+  const toggleSelectAllPage = () => {
+    if (allPageSelected) {
+      const visibleIds = new Set(passes.map((p) => p._id));
       setSelectedPassIds((prev) => prev.filter((id) => !visibleIds.has(id)));
     } else {
-      const visibleIds = filteredPasses.map((p) => p._id);
+      const visibleIds = passes.map((p) => p._id);
       setSelectedPassIds((prev) => [...new Set([...prev, ...visibleIds])]);
     }
   };
@@ -257,7 +309,8 @@ const AdminDashboard = () => {
       const { data } = await axios.post('/api/admin/bulk-delete', { ids: selectedPassIds });
       toast.success(data.message || 'Gate passes deleted successfully');
       setSelectedPassIds([]);
-      fetchData();
+      fetchPasses();
+      fetchStats();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete selected gate passes');
     }
@@ -444,8 +497,8 @@ const AdminDashboard = () => {
             }
           }}
         >
-          <Tab label={`Gate Passes (${passes.length})`} />
-          <Tab label={`User Management (${users.length})`} />
+          <Tab label={`Gate Passes (${passTotal})`} />
+          <Tab label={`User Management (${userTotal || (tabValue === 1 ? users.length : '…')})`} />
         </Tabs>
       </Box>
 
@@ -471,7 +524,7 @@ const AdminDashboard = () => {
             >
               <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
                 <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
-                  All Requests ({filteredPasses.length}{gpSearch.trim() ? ` of ${passes.length}` : ''})
+                  All Requests ({passTotal})
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
                   <TextField
@@ -503,10 +556,10 @@ const AdminDashboard = () => {
                       <TableCell padding="checkbox">
                         <Checkbox
                           size="small"
-                          checked={allFilteredSelected}
-                          indeterminate={someFilteredSelected}
-                          onChange={toggleSelectAllFiltered}
-                          disabled={filteredPasses.length === 0}
+                          checked={allPageSelected}
+                          indeterminate={somePageSelected}
+                          onChange={toggleSelectAllPage}
+                          disabled={passes.length === 0}
                         />
                       </TableCell>
                       {['S.No.', 'GP Number', 'Date', 'Visitor Name', 'Created By', 'Status', 'Actions'].map((h) => (
@@ -517,15 +570,18 @@ const AdminDashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredPasses.map((pass, idx) => {
+                    {loadingPasses && (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+                          <CircularProgress size={28} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!loadingPasses && passes.map((pass, idx) => {
                       const initials = pass.visitorName?.charAt(0).toUpperCase() || 'V';
                       return (
                         <TableRow
                           key={pass._id}
-                          component={motion.tr}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: idx * 0.02, duration: 0.3 }}
                           sx={{
                             '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
                             '&:last-child td': { border: 0 },
@@ -541,7 +597,7 @@ const AdminDashboard = () => {
                             />
                           </TableCell>
                           <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
-                            {idx + 1}
+                            {passPage * PASSES_PER_PAGE + idx + 1}
                           </TableCell>
                           <TableCell sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.82rem', letterSpacing: '0.2px' }}>
                             {pass.gatePassNumber}
@@ -646,12 +702,12 @@ const AdminDashboard = () => {
                         </TableRow>
                       );
                     })}
-                    {filteredPasses.length === 0 && (
+                    {!loadingPasses && passes.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={8} align="center" sx={{ py: 9, color: 'text.secondary' }}>
                           <PeopleAltIcon sx={{ fontSize: 56, mb: 1.8, opacity: 0.15, color: 'primary.main' }} />
                           <Typography variant="body2" fontWeight={700}>
-                            {passes.length === 0 ? 'No gate passes found' : `No gate pass matching "${gpSearch.trim()}"`}
+                            {gpSearch.trim() ? `No gate pass matching "${gpSearch.trim()}"` : 'No gate passes found'}
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -659,6 +715,14 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              <TablePagination
+                component="div"
+                count={passTotal}
+                page={passPage}
+                onPageChange={(_, newPage) => setPassPage(newPage)}
+                rowsPerPage={PASSES_PER_PAGE}
+                rowsPerPageOptions={[PASSES_PER_PAGE]}
+              />
             </Paper>
           ) : (
             /* User Management Table */
@@ -673,7 +737,7 @@ const AdminDashboard = () => {
             >
               <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
                 <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
-                  All Registered Users ({filteredUsers.length}{userSearch.trim() ? ` of ${users.length}` : ''})
+                  All Registered Users ({userTotal})
                 </Typography>
                 <TextField
                   size="small"
@@ -697,15 +761,18 @@ const AdminDashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredUsers.map((user, idx) => {
+                    {loadingUsers && (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                          <CircularProgress size={28} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {!loadingUsers && users.map((user, idx) => {
                       const operatorInitials = user.name?.charAt(0).toUpperCase() || 'O';
                       return (
                         <TableRow
                           key={user._id}
-                          component={motion.tr}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: idx * 0.02, duration: 0.3 }}
                           sx={{
                             '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
                             '&:last-child td': { border: 0 },
@@ -713,7 +780,7 @@ const AdminDashboard = () => {
                           }}
                         >
                           <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.82rem' }}>
-                            {idx + 1}
+                            {userPage * USERS_PER_PAGE + idx + 1}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" alignItems="center" gap={1.2}>
@@ -794,11 +861,11 @@ const AdminDashboard = () => {
                         </TableRow>
                       );
                     })}
-                    {filteredUsers.length === 0 && (
+                    {!loadingUsers && users.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={6} align="center" sx={{ py: 9, color: 'text.secondary' }}>
                           <Typography variant="body2" fontWeight={750}>
-                            {users.length === 0 ? 'No users found' : `No user matching "${userSearch.trim()}"`}
+                            {userSearch.trim() ? `No user matching "${userSearch.trim()}"` : 'No users found'}
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -806,6 +873,14 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              <TablePagination
+                component="div"
+                count={userTotal}
+                page={userPage}
+                onPageChange={(_, newPage) => setUserPage(newPage)}
+                rowsPerPage={USERS_PER_PAGE}
+                rowsPerPageOptions={[USERS_PER_PAGE]}
+              />
             </Paper>
           )}
         </motion.div>
