@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import CloseIcon from '@mui/icons-material/Close';

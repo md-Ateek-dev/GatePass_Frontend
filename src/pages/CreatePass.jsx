@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Box, Typography, Grid, TextField, MenuItem,
-  Button, IconButton, CircularProgress, Divider, Paper, Chip,
+  Button, IconButton, CircularProgress, Paper, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions,
   Checkbox, FormControlLabel
 } from '@mui/material';
@@ -598,7 +598,7 @@ const CreatePass = () => {
                 screenshotFormat="image/jpeg"
                 videoConstraints={{ facingMode: cameraMode }}
                 style={{ width: '100%', maxHeight: '60vh', objectFit: 'cover', display: 'block' }}
-                onUserMediaError={(err) => {
+                onUserMediaError={() => {
                   toast.error("Camera access denied or device disconnected!");
                   setCameraMode(null);
                 }}

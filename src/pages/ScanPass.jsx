@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import {
   Box, Typography, Card, CardContent, Button, CircularProgress,
-  Divider, Grid, Paper, Chip, Avatar, useTheme, useMediaQuery
+  Divider, Grid, Paper, Chip, Avatar
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
@@ -28,12 +28,10 @@ const ScanPass = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const { mode } = useContext(ThemeModeContext);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const isDark = mode === 'dark';
 
-  const fetchPassDetails = async () => {
+  const fetchPassDetails = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await axios.get(`/api/gatepass/scan/${id}`);
@@ -45,13 +43,13 @@ const ScanPass = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) {
       fetchPassDetails();
     }
-  }, [id]);
+  }, [id, fetchPassDetails]);
 
   const handleStatusUpdate = async (action) => {
     try {
