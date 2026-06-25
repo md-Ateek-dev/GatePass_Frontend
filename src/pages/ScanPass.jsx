@@ -20,6 +20,7 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { ThemeModeContext } from '../context/ThemeContext';
 import { getVisitorPhotoUrl } from '../utils/visitorPhoto';
+import ThreeDTiltCard from '../components/ThreeDTiltCard';
 
 const ScanPass = () => {
   const { id } = useParams();
@@ -134,17 +135,18 @@ const ScanPass = () => {
         transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         style={{ width: '100%', maxWidth: 540 }}
       >
-        <Card
-          elevation={0}
-          sx={{
-            borderRadius: '24px',
-            border: '1px solid',
-            borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0, 0, 0, 0.05)',
-            bgcolor: 'background.paper',
-            boxShadow: isDark ? '0 28px 72px rgba(0, 0, 0, 0.65)' : '0 25px 50px -10px rgba(197, 160, 89, 0.08)',
-            overflow: 'hidden',
-          }}
-        >
+        <ThreeDTiltCard style={{ borderRadius: '24px' }}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: '24px',
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0, 0, 0, 0.05)',
+              bgcolor: 'background.paper',
+              boxShadow: isDark ? '0 28px 72px rgba(0, 0, 0, 0.65)' : '0 25px 50px -10px rgba(197, 160, 89, 0.08)',
+              overflow: 'hidden',
+            }}
+          >
           {/* Header Portal Band with gradient */}
           <Box
             sx={{
@@ -341,6 +343,7 @@ const ScanPass = () => {
 
           </CardContent>
         </Card>
+      </ThreeDTiltCard>
       </motion.div>
     </Box>
   );

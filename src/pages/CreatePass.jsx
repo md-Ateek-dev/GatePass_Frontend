@@ -22,6 +22,7 @@ import { ThemeModeContext } from '../context/ThemeContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import DeveloperCredit from '../components/DeveloperCredit';
+import ScrollReveal from '../components/ScrollReveal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -182,7 +183,7 @@ const CreatePass = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
 
           {/* ─── Section 1: Visit Scope Details ─── */}
-          <motion.div variants={itemVariants}>
+          <ScrollReveal direction="up" delay={0.05}>
             <Paper elevation={0} sx={sectionPaperSx}>
               <SectionHeader
                 icon={<InfoOutlinedIcon sx={{ color: 'white', fontSize: 20 }} />}
@@ -255,10 +256,10 @@ const CreatePass = () => {
                 </Grid>
               </Grid>
             </Paper>
-          </motion.div>
+          </ScrollReveal>
 
           {/* ─── Section 2: Visitor Personal Bio ─── */}
-          <motion.div variants={itemVariants}>
+          <ScrollReveal direction="up" delay={0.05}>
             <Paper elevation={0} sx={sectionPaperSx}>
               <SectionHeader
                 icon={<PersonSearchIcon sx={{ color: 'white', fontSize: 20 }} />}
@@ -344,10 +345,10 @@ const CreatePass = () => {
                 </Grid>
               </Grid>
             </Paper>
-          </motion.div>
+          </ScrollReveal>
 
           {/* ─── Section 3: Material Items & Vehicle Registry ─── */}
-          <motion.div variants={itemVariants}>
+          <ScrollReveal direction="up" delay={0.05}>
             <Paper elevation={0} sx={sectionPaperSx}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3.5, flexWrap: 'wrap', gap: 1 }}>
                 <SectionHeader
@@ -404,10 +405,10 @@ const CreatePass = () => {
                 </Grid>
               </Grid>
             </Paper>
-          </motion.div>
+          </ScrollReveal>
 
           {/* ─── Section 4: Camera Verification ─── */}
-          <motion.div variants={itemVariants}>
+          <ScrollReveal direction="up" delay={0.05}>
             <Paper elevation={0} sx={sectionPaperSx}>
               <Typography variant="subtitle1" fontWeight={800} sx={{ color: 'text.primary', mb: 0.5, letterSpacing: '-0.015em', fontSize: '1rem' }}>
                 Visitor Photo
@@ -527,10 +528,10 @@ const CreatePass = () => {
                 )}
               </Box>
             </Paper>
-          </motion.div>
+          </ScrollReveal>
 
           {/* ─── Submit Clearances ─── */}
-          <motion.div variants={itemVariants} whileHover={{ scale: 1.003 }} whileTap={{ scale: 0.997 }}>
+          <ScrollReveal direction="up" delay={0.05} whileHover={{ scale: 1.003 }} whileTap={{ scale: 0.997 }}>
             <Button
               type="submit"
               variant="contained"
@@ -561,7 +562,7 @@ const CreatePass = () => {
                 'Create Gate Pass'
               )}
             </Button>
-          </motion.div>
+          </ScrollReveal>
 
         </form>
       </motion.div>

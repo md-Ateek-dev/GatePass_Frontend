@@ -17,6 +17,8 @@ import { motion } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
 import { ThemeModeContext } from '../context/ThemeContext';
 import GatePassPrintContent from '../components/GatePassPrintContent';
+import ThreeDTiltCard from '../components/ThreeDTiltCard';
+import ScrollReveal from '../components/ScrollReveal';
 
 const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
   const { mode } = useContext(ThemeModeContext);
@@ -27,71 +29,74 @@ const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+      style={{ height: '100%' }}
     >
-      <Card
-        elevation={0}
-        sx={{
-          borderRadius: '20px',
-          border: '1px solid',
-          borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
-          bgcolor: 'background.paper',
-          height: '100%',
-          overflow: 'hidden',
-          position: 'relative',
-          boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.04)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            borderColor: 'primary.light',
-            boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.08)' : '0 16px 36px rgba(197, 160, 89, 0.08)',
-          }
-        }}
-      >
-        {/* Visual Accent Top Bar */}
-        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: color }} />
-        <CardContent sx={{ pt: 3.5, pb: '24px !important', px: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.3 }}>
-                {label}
-              </Typography>
-              <Typography variant="h4" fontWeight={800} sx={{ color: 'text.primary', lineHeight: 1.2, mt: 0.8, letterSpacing: '-0.03em' }}>
-                {value}
-              </Typography>
-              {trend && (
-                <Chip
-                  label={trend}
-                  size="small"
-                  sx={{
-                    height: 18,
-                    fontSize: '0.65rem',
-                    fontWeight: 800,
-                    bgcolor: bgColor,
-                    color: isDark ? 'text.primary' : 'text.primary',
-                    mt: 1.2,
-                    px: 0.4,
-                    border: '1px solid rgba(255,255,255,0.05)'
-                  }}
-                />
-              )}
+      <ThreeDTiltCard style={{ height: '100%', borderRadius: '20px' }}>
+        <Card
+          elevation={0}
+          sx={{
+            borderRadius: '20px',
+            border: '1px solid',
+            borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
+            bgcolor: 'background.paper',
+            height: '100%',
+            overflow: 'hidden',
+            position: 'relative',
+            boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.04)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              borderColor: 'primary.light',
+              boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.08)' : '0 16px 36px rgba(197, 160, 89, 0.08)',
+            }
+          }}
+        >
+          {/* Visual Accent Top Bar */}
+          <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: color }} />
+          <CardContent sx={{ pt: 3.5, pb: '24px !important', px: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.3 }}>
+                  {label}
+                </Typography>
+                <Typography variant="h4" fontWeight={800} sx={{ color: 'text.primary', lineHeight: 1.2, mt: 0.8, letterSpacing: '-0.03em' }}>
+                  {value}
+                </Typography>
+                {trend && (
+                  <Chip
+                    label={trend}
+                    size="small"
+                    sx={{
+                      height: 18,
+                      fontSize: '0.65rem',
+                      fontWeight: 800,
+                      bgcolor: bgColor,
+                      color: isDark ? 'text.primary' : 'text.primary',
+                      mt: 1.2,
+                      px: 0.4,
+                      border: '1px solid rgba(255,255,255,0.05)'
+                    }}
+                  />
+                )}
+              </Box>
+              <Box
+                sx={{
+                  width: 56, height: 56, borderRadius: '16px',
+                  bgcolor: bgColor,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+                  border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.02)'
+                }}
+              >
+                {icon}
+              </Box>
             </Box>
-            <Box
-              sx={{
-                width: 56, height: 56, borderRadius: '16px',
-                bgcolor: bgColor,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.02)'
-              }}
-            >
-              {icon}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </ThreeDTiltCard>
     </motion.div>
   );
 };
+
 
 const ROWS_PER_PAGE = 15;
 
@@ -221,12 +226,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* Passes Table Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 25 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-20px' }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <ScrollReveal direction="up" delay={0.05} duration={0.65}>
         <Paper
           elevation={0}
           sx={{
@@ -375,7 +375,7 @@ const Dashboard = () => {
             rowsPerPageOptions={[ROWS_PER_PAGE]}
           />
         </Paper>
-      </motion.div>
+      </ScrollReveal>
 
       {/* Hidden QR Canvas for print data URL generation */}
       {printOpen && selectedPass && (

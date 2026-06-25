@@ -17,6 +17,8 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import DeveloperCredit from '../components/DeveloperCredit';
 import { getLoginFieldSx } from '../theme/loginFieldStyles';
+import ThreeDTiltCard from '../components/ThreeDTiltCard';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -131,136 +133,138 @@ const Login = () => {
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
         style={{ width: '100%', maxWidth: 450, zIndex: 2 }}
       >
-        {/* Glassmorphic Login Card */}
-        <Box
-          sx={{
-            bgcolor: isDark ? 'rgba(12, 18, 34, 0.55)' : 'rgba(255, 255, 255, 0.72)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderRadius: '28px',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.5)'}`,
-            boxShadow: isDark ? '0 28px 72px rgba(0,0,0,0.65)' : '0 28px 72px rgba(15, 28, 46, 0.12)',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          {/* Card Header with unified premium gradient */}
+        {/* Glassmorphic Login Card wrapped in 3D tilt */}
+        <ThreeDTiltCard style={{ borderRadius: '28px' }}>
           <Box
             sx={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-              p: { xs: 4.5, sm: 5 },
-              textAlign: 'center',
-              position: 'relative',
-              boxShadow: '0 4px 20px rgba(15, 28, 46, 0.2)',
-              borderBottom: '2px solid var(--secondary)',
+              bgcolor: isDark ? 'rgba(12, 18, 34, 0.55)' : 'rgba(255, 255, 255, 0.72)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              borderRadius: '28px',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.5)'}`,
+              boxShadow: isDark ? '0 28px 72px rgba(0,0,0,0.65)' : '0 28px 72px rgba(15, 28, 46, 0.12)',
+              overflow: 'hidden',
+              transition: 'all 0.3s ease',
             }}
           >
+            {/* Card Header with unified premium gradient */}
             <Box
               sx={{
-                width: 62, height: 62, borderRadius: '20px',
-                bgcolor: 'rgba(255,255,255,0.22)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                mx: 'auto', mb: 2,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                border: '1px solid rgba(255,255,255,0.28)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+                p: { xs: 4.5, sm: 5 },
+                textAlign: 'center',
+                position: 'relative',
+                boxShadow: '0 4px 20px rgba(15, 28, 46, 0.2)',
+                borderBottom: '2px solid var(--secondary)',
               }}
             >
-              <BadgeIcon sx={{ color: 'white', fontSize: 32 }} />
+              <Box
+                sx={{
+                  width: 62, height: 62, borderRadius: '20px',
+                  bgcolor: 'rgba(255,255,255,0.22)',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  mx: 'auto', mb: 2,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+                  border: '1px solid rgba(255,255,255,0.28)',
+                }}
+              >
+                <BadgeIcon sx={{ color: 'white', fontSize: 32 }} />
+              </Box>
+              <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: 0.8, fontSize: '1.45rem' }}>
+                Gate Pass System
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', mt: 0.8, fontWeight: 700, fontSize: '0.85rem' }}>
+                Visitor entry management
+              </Typography>
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: 0.8, fontSize: '1.45rem' }}>
-              Gate Pass System
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', mt: 0.8, fontWeight: 700, fontSize: '0.85rem' }}>
-              Visitor entry management
-            </Typography>
+
+            {/* Form Content */}
+            <Box component="form" onSubmit={handleSubmit} className="login-form" sx={{ p: { xs: 4.5, sm: 5 } }}>
+              <Typography variant="h6" fontWeight={800} sx={{ color: 'text.primary', mb: 0.8, letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
+                Login
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4, fontWeight: 650 }}>
+                Enter your email and password
+              </Typography>
+
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailOutlinedIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getLoginFieldSx(isDark)}
+              />
+
+              <TextField
+                fullWidth
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        size="small"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getLoginFieldSx(isDark, { mb: 4.5 })}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                disabled={loading}
+                sx={{
+                  py: 1.8,
+                  borderRadius: '16px',
+                  fontSize: '0.975rem',
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #1a2d4a 0%, #0f1c2e 100%)',
+                  color: '#fff',
+                  boxShadow: '0 8px 24px rgba(15, 28, 46, 0.25)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #2a4365 0%, #1a2d4a 100%)',
+                    boxShadow: '0 10px 28px rgba(15, 28, 46, 0.3)',
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:active': { transform: 'translateY(0)' },
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : 'Login'}
+              </Button>
+            </Box>
           </Box>
-
-          {/* Form Content */}
-          <Box component="form" onSubmit={handleSubmit} className="login-form" sx={{ p: { xs: 4.5, sm: 5 } }}>
-            <Typography variant="h6" fontWeight={800} sx={{ color: 'text.primary', mb: 0.8, letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
-              Login
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4, fontWeight: 650 }}>
-              Enter your email and password
-            </Typography>
-
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailOutlinedIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={getLoginFieldSx(isDark)}
-            />
-
-            <TextField
-              fullWidth
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockOutlinedIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      size="small"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={getLoginFieldSx(isDark, { mb: 4.5 })}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={loading}
-              sx={{
-                py: 1.8,
-                borderRadius: '16px',
-                fontSize: '0.975rem',
-                fontWeight: 800,
-                textTransform: 'none',
-                background: 'linear-gradient(135deg, #1a2d4a 0%, #0f1c2e 100%)',
-                color: '#fff',
-                boxShadow: '0 8px 24px rgba(15, 28, 46, 0.25)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #2a4365 0%, #1a2d4a 100%)',
-                  boxShadow: '0 10px 28px rgba(15, 28, 46, 0.3)',
-                  transform: 'translateY(-1px)',
-                },
-                '&:active': { transform: 'translateY(0)' },
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : 'Login'}
-            </Button>
-          </Box>
-        </Box>
+        </ThreeDTiltCard>
 
         <DeveloperCredit variant={isDark ? 'dark' : 'light'} sx={{ mt: 3, pt: 3, borderTop: 'none' }} />
       </motion.div>
