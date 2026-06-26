@@ -52,11 +52,11 @@ const StatCard = ({ icon, label, value, color, bgColor, delay, trend }) => {
           height: '100%',
           overflow: 'hidden',
           position: 'relative',
-          boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.04)',
+          boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(37, 99, 235, 0.03)',
           transition: 'all 0.3s ease',
           '&:hover': {
             borderColor: 'primary.light',
-            boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.08)' : '0 16px 36px rgba(197, 160, 89, 0.08)',
+            boxShadow: isDark ? '0 16px 36px rgba(37, 99, 235, 0.06)' : '0 16px 36px rgba(37, 99, 235, 0.06)',
           }
         }}
       >
@@ -139,24 +139,14 @@ const AdminDashboard = () => {
   const searchFieldSx = {
     minWidth: { xs: '100%', sm: 280 },
     '& .MuiOutlinedInput-root': {
-      borderRadius: '14px',
-      bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.02)',
+      bgcolor: isDark ? 'rgba(0,0,0,0.2)' : '#ffffff',
       fontSize: '0.875rem',
-      '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)' },
-      '&:hover fieldset': { borderColor: 'primary.light' },
-      '&.Mui-focused fieldset': { borderColor: 'primary.main', boxShadow: '0 0 10px rgba(197, 160, 89,0.15)' },
-      transition: 'all 0.2s',
     },
   };
 
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
-      borderRadius: '16px',
-      bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.65)',
-      '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)' },
-      '&:hover fieldset': { borderColor: 'primary.light' },
-      '&.Mui-focused fieldset': { borderColor: 'primary.main', boxShadow: '0 0 16px rgba(197, 160, 89,0.2)' },
-      transition: 'all 0.25s ease',
+      bgcolor: isDark ? 'rgba(0,0,0,0.2)' : '#ffffff',
     },
     '& .MuiInputLabel-root': { color: 'text.secondary', fontSize: '0.9rem', fontWeight: 650 },
     '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
@@ -401,7 +391,7 @@ const AdminDashboard = () => {
   };
 
   const statConfig = [
-    { icon: <PeopleAltIcon sx={{ color: 'primary.main', fontSize: 26 }} />, label: 'Total Passes', value: stats.totalVisitors || 0, color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(197, 160, 89, 0.08)', delay: 0.05, trend: 'TOTAL GENERATED' },
+    { icon: <PeopleAltIcon sx={{ color: 'primary.main', fontSize: 26 }} />, label: 'Total Passes', value: stats.totalVisitors || 0, color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(37, 99, 235, 0.08)', delay: 0.05, trend: 'TOTAL GENERATED' },
     { icon: <TodayIcon sx={{ color: 'secondary.main', fontSize: 26 }} />, label: "Today's Passes", value: stats.todayVisitors || 0, color: 'var(--secondary)', bgColor: 'rgba(168, 85, 247, 0.08)', delay: 0.1, trend: 'DAILY CLEARED' },
     { icon: <CheckCircleOutlineIcon sx={{ color: 'success.main', fontSize: 26 }} />, label: 'Checked In', value: stats.insideVisitors || 0, color: 'var(--success)', bgColor: 'rgba(16, 185, 129, 0.08)', delay: 0.15, trend: '' },
     { icon: <ExitToAppIcon sx={{ color: 'text.secondary', fontSize: 26 }} />, label: 'Checked Out', value: stats.completedVisits || 0, color: 'var(--text-secondary)', bgColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(71, 85, 105, 0.06)', delay: 0.2, trend: 'ARCHIVED RUNS' },
@@ -427,7 +417,7 @@ const AdminDashboard = () => {
             sx={{
               textTransform: 'none', borderRadius: '12px', fontWeight: 800, px: 2.5, py: 1.2,
               borderColor: 'divider', color: 'text.secondary',
-              '&:hover': { borderColor: 'primary.main', color: 'primary.main', bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(197, 160, 89,0.03)' },
+              '&:hover': { borderColor: 'primary.main', color: 'primary.main', bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(37, 99, 235,0.04)' },
               whiteSpace: 'nowrap',
             }}
           >
@@ -440,8 +430,8 @@ const AdminDashboard = () => {
               textTransform: 'none', borderRadius: '12px',
               fontWeight: 800, px: 2.8, py: 1.2,
               background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-              boxShadow: '0 4px 16px rgba(197, 160, 89, 0.25)',
-              '&:hover': { background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%)', boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)', transform: 'translateY(-2px)' },
+              boxShadow: '0 4px 16px rgba(37, 99, 235, 0.25)',
+              '&:hover': { background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%)', boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)', transform: 'translateY(-2px)' },
               transition: 'all 0.25s ease',
               whiteSpace: 'nowrap',
             }}
@@ -517,7 +507,7 @@ const AdminDashboard = () => {
               sx={{
                 borderRadius: '20px', border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
                 bgcolor: 'background.paper',
-                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
+                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(37, 99, 235, 0.03)',
                 overflow: 'hidden',
               }}
             >
@@ -582,7 +572,7 @@ const AdminDashboard = () => {
                         <TableRow
                           key={pass._id}
                           sx={{
-                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
+                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(37, 99, 235, 0.02)' },
                             '&:last-child td': { border: 0 },
                             transition: 'background-color 0.2s ease',
                             bgcolor: selectedPassIds.includes(pass._id) ? (isDark ? 'rgba(244,63,94,0.06)' : '#fff1f2') : 'inherit',
@@ -730,7 +720,7 @@ const AdminDashboard = () => {
               sx={{
                 borderRadius: '20px', border: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0, 0, 0, 0.05)',
                 bgcolor: 'background.paper',
-                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
+                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(37, 99, 235, 0.03)',
                 overflow: 'hidden',
               }}
             >
@@ -773,7 +763,7 @@ const AdminDashboard = () => {
                         <TableRow
                           key={user._id}
                           sx={{
-                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(197, 160, 89, 0.015)' },
+                            '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.01)' : 'rgba(37, 99, 235, 0.02)' },
                             '&:last-child td': { border: 0 },
                             transition: 'background-color 0.2s ease',
                           }}
@@ -829,10 +819,10 @@ const AdminDashboard = () => {
                               sx={{
                                 fontWeight: 800,
                                 fontSize: '0.65rem',
-                                bgcolor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.08)' : 'rgba(197, 160, 89, 0.08)',
+                                bgcolor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.08)' : 'rgba(37, 99, 235, 0.08)',
                                 color: user.role === 'admin' ? 'secondary.main' : 'primary.main',
                                 border: '1px solid',
-                                borderColor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.15)' : 'rgba(197, 160, 89, 0.15)',
+                                borderColor: user.role === 'admin' ? 'rgba(168, 85, 247, 0.15)' : 'rgba(37, 99, 235, 0.15)',
                               }}
                             />
                           </TableCell>
@@ -928,10 +918,10 @@ const AdminDashboard = () => {
             sx={{
               textTransform: 'none', borderRadius: '12px', fontWeight: 800, py: 1.2, px: 3,
               background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
               '&:hover': {
                 background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
-                boxShadow: '0 6px 20px rgba(197, 160, 89, 0.35)',
+                boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
               }
             }}
           >
@@ -1016,7 +1006,7 @@ const AdminDashboard = () => {
                 sx={{
                   borderRadius: '12px', py: 1.2, px: 3, fontWeight: 800,
                   background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                  boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
                   '&:hover': {
                     background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
                   }
@@ -1116,7 +1106,7 @@ const AdminDashboard = () => {
             sx={{
               borderRadius: '12px', py: 1.2, px: 3, fontWeight: 800,
               background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
               '&:hover': {
                 background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
               }

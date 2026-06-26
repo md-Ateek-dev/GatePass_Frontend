@@ -41,7 +41,7 @@ const SectionHeader = ({ icon, title, subtitle }) => (
         background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
-        boxShadow: '0 4px 14px rgba(197, 160, 89, 0.25)',
+        boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
       }}
     >
       {icon}
@@ -129,12 +129,7 @@ const CreatePass = () => {
 
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
-      borderRadius: '16px',
-      bgcolor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.65)',
-      '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)' },
-      '&:hover fieldset': { borderColor: 'primary.light' },
-      '&.Mui-focused fieldset': { borderColor: 'primary.main', boxShadow: '0 0 16px rgba(197, 160, 89,0.2)' },
-      transition: 'all 0.25s ease',
+      bgcolor: isDark ? 'rgba(0,0,0,0.2)' : '#ffffff',
     },
     '& .MuiInputLabel-root': { color: 'text.secondary', fontSize: '0.9rem', fontWeight: 650 },
     '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
@@ -145,13 +140,13 @@ const CreatePass = () => {
     border: '1px solid',
     borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
     bgcolor: 'background.paper',
-    boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(197, 160, 89, 0.03)',
+    boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 24px -4px rgba(37, 99, 235, 0.03)',
     p: { xs: 3.5, sm: 4.5 },
     mb: 3.8,
     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
     '&:hover': {
-      borderColor: 'rgba(197, 160, 89,0.22)',
-      boxShadow: isDark ? '0 16px 36px rgba(197, 160, 89, 0.05)' : '0 16px 36px rgba(197, 160, 89, 0.06)',
+      borderColor: 'rgba(37, 99, 235, 0.22)',
+      boxShadow: isDark ? '0 16px 36px rgba(37, 99, 235, 0.05)' : '0 16px 36px rgba(37, 99, 235, 0.06)',
     }
   };
 
@@ -164,7 +159,7 @@ const CreatePass = () => {
             width: 54, height: 54, borderRadius: '18px',
             background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 6px 20px rgba(197, 160, 89, 0.3)', flexShrink: 0,
+            boxShadow: '0 6px 20px rgba(37, 99, 235, 0.3)', flexShrink: 0,
           }}
         >
           <AssignmentTurnedInIcon sx={{ color: 'white', fontSize: 26 }} />
@@ -424,9 +419,9 @@ const CreatePass = () => {
                   borderRadius: '20px',
                   p: { xs: 4, sm: 6 },
                   textAlign: 'center',
-                  bgcolor: photoFile ? (isDark ? 'rgba(197, 160, 89,0.06)' : 'rgba(197, 160, 89,0.02)') : 'rgba(0,0,0,0.01)',
+                  bgcolor: photoFile ? (isDark ? 'rgba(37, 99, 235, 0.06)' : 'rgba(37, 99, 235, 0.02)') : 'rgba(0,0,0,0.01)',
                   transition: 'all 0.3s ease',
-                  '&:hover': { borderColor: 'primary.main', bgcolor: isDark ? 'rgba(197, 160, 89,0.08)' : 'rgba(197, 160, 89,0.04)' },
+                  '&:hover': { borderColor: 'primary.main', bgcolor: isDark ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.04)' },
                   position: 'relative',
                 }}
               >
@@ -470,10 +465,10 @@ const CreatePass = () => {
                       <Box
                         sx={{
                           width: 62, height: 62, borderRadius: '16px',
-                          bgcolor: 'rgba(197, 160, 89,0.08)', display: 'flex', alignItems: 'center',
+                          bgcolor: 'rgba(37, 99, 235, 0.08)', display: 'flex', alignItems: 'center',
                           justifyContent: 'center', mx: 'auto', mb: 1.5,
-                          border: '1px solid rgba(197, 160, 89,0.12)',
-                          '&:hover': { bgcolor: 'rgba(197, 160, 89,0.15)', transform: 'translateY(-3px)' },
+                          border: '1px solid rgba(37, 99, 235, 0.12)',
+                          '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.15)', transform: 'translateY(-3px)' },
                           transition: 'all 0.25s',
                         }}
                       >
@@ -488,10 +483,10 @@ const CreatePass = () => {
                       <Box
                         sx={{
                           width: 62, height: 62, borderRadius: '16px',
-                          bgcolor: 'rgba(197, 160, 89,0.08)', display: 'flex', alignItems: 'center',
+                          bgcolor: 'rgba(37, 99, 235, 0.08)', display: 'flex', alignItems: 'center',
                           justifyContent: 'center', mx: 'auto', mb: 1.5,
-                          border: '1px solid rgba(197, 160, 89,0.12)',
-                          '&:hover': { bgcolor: 'rgba(197, 160, 89,0.15)', transform: 'translateY(-3px)' },
+                          border: '1px solid rgba(37, 99, 235, 0.12)',
+                          '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.15)', transform: 'translateY(-3px)' },
                           transition: 'all 0.25s',
                         }}
                       >
@@ -506,10 +501,10 @@ const CreatePass = () => {
                       <Box
                         sx={{
                           width: 62, height: 62, borderRadius: '16px',
-                          bgcolor: 'rgba(197, 160, 89,0.08)', display: 'flex', alignItems: 'center',
+                          bgcolor: 'rgba(37, 99, 235, 0.08)', display: 'flex', alignItems: 'center',
                           justifyContent: 'center', mx: 'auto', mb: 1.5,
-                          border: '1px solid rgba(197, 160, 89,0.12)',
-                          '&:hover': { bgcolor: 'rgba(197, 160, 89,0.15)', transform: 'translateY(-3px)' },
+                          border: '1px solid rgba(37, 99, 235, 0.12)',
+                          '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.15)', transform: 'translateY(-3px)' },
                           transition: 'all 0.25s',
                         }}
                       >
@@ -542,10 +537,10 @@ const CreatePass = () => {
                 py: 2, fontSize: '0.98rem', fontWeight: 800,
                 borderRadius: '16px', letterSpacing: 0.5,
                 background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-                boxShadow: '0 8px 24px rgba(197, 160, 89, 0.3)',
+                boxShadow: '0 8px 24px rgba(37, 99, 235, 0.3)',
                 '&:hover': {
                   background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%)',
-                  boxShadow: '0 12px 32px rgba(197, 160, 89, 0.45)',
+                  boxShadow: '0 12px 32px rgba(37, 99, 235, 0.45)',
                   transform: 'translateY(-1px)',
                 },
                 '&:active': { transform: 'translateY(0)' },
@@ -620,7 +615,7 @@ const CreatePass = () => {
               py: 1,
               px: 3,
               fontWeight: 800,
-              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.3)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
               '&:hover': {
                 background: 'linear-gradient(135deg, var(--primary-light), var(--secondary-dark))',
               }

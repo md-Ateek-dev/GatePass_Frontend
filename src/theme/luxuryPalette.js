@@ -28,10 +28,10 @@ export const luxuryPalette = {
 };
 
 export const luxuryGradients = {
-  primary: 'linear-gradient(135deg, #1a2d4a 0%, #0f1c2e 55%, #2a4365 100%)',
-  goldAccent: 'linear-gradient(135deg, #d4b87a 0%, #c5a059 50%, #a6843f 100%)',
-  hero: 'linear-gradient(145deg, #1a2d4a 0%, #0f1c2e 40%, #1e3a5f 100%)',
-  subtle: 'linear-gradient(180deg, rgba(197, 160, 89, 0.08) 0%, transparent 100%)',
+  primary: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)',
+  goldAccent: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)',
+  hero: 'linear-gradient(145deg, #0f172a 0%, #1e3a8a 40%, #2563eb 100%)',
+  subtle: 'linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, transparent 100%)',
 };
 
 export const pagePaperSx = {
@@ -52,12 +52,12 @@ export const primaryButtonSx = {
   borderRadius: '12px',
   px: 2.5,
   py: 1,
-  background: luxuryGradients.goldAccent,
-  color: '#0f1c2e',
-  boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
+  background: luxuryGradients.primary,
+  color: '#ffffff',
+  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
   '&:hover': {
-    background: 'linear-gradient(135deg, #e0c48a 0%, #c5a059 100%)',
-    boxShadow: '0 6px 20px rgba(197, 160, 89, 0.45)',
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+    boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
     transform: 'translateY(-1px)',
   },
 };
@@ -69,7 +69,7 @@ export const outlinedGoldButtonSx = {
   borderColor: 'primary.main',
   color: 'primary.main',
   '&:hover': {
-    borderColor: 'secondary.main',
-    bgcolor: 'rgba(197, 160, 89, 0.08)',
+    borderColor: 'primary.light',
+    bgcolor: 'rgba(37, 99, 235, 0.08)',
   },
 };

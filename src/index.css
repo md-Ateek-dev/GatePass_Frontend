@@ -6,65 +6,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Clean Premium Light Theme (Slate & Burnished Gold) */
-  --primary: #1e293b;
+  /* Clean Premium Light Theme (Champagne-Ivory & Royal Glass) */
+  --primary: #1e3a8a;
   --primary-dark: #0f172a;
-  --primary-light: #334155;
-  --secondary: #926f2f;
-  --secondary-dark: #75541c;
-  --secondary-light: #b59049;
+  --primary-light: #2563eb;
+  --secondary: #2563eb;
+  --secondary-dark: #1e3a8a;
+  --secondary-light: #60a5fa;
   --success: #0d9488;
   --warning: #d97706;
   --error: #be123c;
 
   --bg: #f8fafc;
-  --surface: rgba(255, 255, 255, 0.9);
+  --bg-image: linear-gradient(135deg, rgba(241, 245, 249, 0.94), rgba(255, 255, 255, 0.96)), url('./assets/bg.png');
+  --surface: rgba(255, 255, 255, 0.85);
   --surface-opaque: #ffffff;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --border: rgba(15, 23, 42, 0.06);
+  --text-secondary: #334155;
+  --border: rgba(15, 23, 42, 0.08);
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.03);
   --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.05);
   --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(15, 23, 42, 0.1);
   --glass-blur: 20px;
   --radius: 16px;
   --radius-sm: 12px;
   --dotted-grid: rgba(15, 23, 42, 0.03);
-  --accent-glow: rgba(146, 111, 47, 0.12);
+  --accent-glow: rgba(37, 99, 235, 0.12);
 
-  --scrollbar-thumb: rgba(15, 23, 42, 0.15);
-  --scrollbar-thumb-hover: rgba(15, 23, 42, 0.3);
-  --card-border-gradient: linear-gradient(135deg, rgba(146, 111, 47, 0.3), rgba(15, 23, 42, 0.1));
+  --scrollbar-thumb: rgba(30, 58, 138, 0.15);
+  --scrollbar-thumb-hover: rgba(30, 58, 138, 0.3);
+  --card-border-gradient: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(15, 23, 42, 0.1));
 }
 
 [data-theme="dark"] {
-  --primary: #d4b87a;
-  --primary-dark: #c5a059;
-  --primary-light: #e8d4a8;
-  --secondary: #c5a059;
-  --secondary-dark: #a6843f;
-  --secondary-light: #d4b87a;
+  /* Premium Dark Theme (Sapphire-Midnight base) */
+  --primary: #2563eb;
+  --primary-dark: #0f172a;
+  --primary-light: #60a5fa;
+  --secondary: #1e3a8a;
+  --secondary-dark: #0f172a;
+  --secondary-light: #3b82f6;
 
-  --bg: #080c14;
-  --surface: rgba(16, 24, 39, 0.85);
-  --surface-opaque: #101827;
-  --text-primary: #f5f0e8;
+  --bg: #090d16;
+  --bg-image: linear-gradient(135deg, rgba(9, 13, 22, 0.88), rgba(11, 15, 26, 0.94)), url('./assets/bg.png');
+  --surface: rgba(17, 25, 40, 0.8);
+  --surface-opaque: #0f172a;
+  --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --border: rgba(197, 160, 89, 0.1);
+  --border: rgba(59, 130, 246, 0.15);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 12px 36px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.55);
-  --glass-bg: rgba(16, 24, 39, 0.65);
-  --glass-border: rgba(197, 160, 89, 0.12);
+  --glass-bg: rgba(17, 25, 40, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: 24px;
-  --dotted-grid: rgba(197, 160, 89, 0.04);
-  --accent-glow: rgba(197, 160, 89, 0.25);
+  --dotted-grid: rgba(37, 99, 235, 0.04);
+  --accent-glow: rgba(59, 130, 246, 0.25);
 
-  --scrollbar-thumb: rgba(197, 160, 89, 0.35);
-  --scrollbar-thumb-hover: rgba(197, 160, 89, 0.55);
-  --card-border-gradient: linear-gradient(135deg, rgba(197, 160, 89, 0.35), rgba(26, 45, 74, 0.2));
+  --scrollbar-thumb: rgba(37, 99, 235, 0.35);
+  --scrollbar-thumb-hover: rgba(37, 99, 235, 0.55);
+  --card-border-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(15, 23, 42, 0.15));
 }
 
 *, *::before, *::after {
@@ -81,8 +84,11 @@ html {
 body {
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   background-color: var(--bg);
-  background-image: radial-gradient(var(--dotted-grid) 1.5px, transparent 0);
-  background-size: 28px 28px;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;

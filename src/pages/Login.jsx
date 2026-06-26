@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import DeveloperCredit from '../components/DeveloperCredit';
 import { getLoginFieldSx } from '../theme/loginFieldStyles';
 import ThreeDTiltCard from '../components/ThreeDTiltCard';
-import loginBg from "../assets/bg_Banner.png";
+import loginBg from "../assets/bg.png";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -152,12 +152,11 @@ const Login = () => {
             {/* Card Header with unified premium gradient */}
             <Box
               sx={{
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-                p: { xs: 4.5, sm: 5 },
+background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)",                p: { xs: 4.5, sm: 5 },
                 textAlign: 'center',
                 position: 'relative',
                 boxShadow: '0 4px 20px rgba(15, 28, 46, 0.2)',
-                borderBottom: '2px solid var(--secondary)',
+                // borderBottom: '2px solid var(--secondary)',
               }}
             >
               <Box
@@ -250,11 +249,11 @@ const Login = () => {
                   fontSize: '0.975rem',
                   fontWeight: 800,
                   textTransform: 'none',
-                  background: 'linear-gradient(135deg, #1a2d4a 0%, #0f1c2e 100%)',
+                  background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)",
                   color: '#fff',
                   boxShadow: '0 8px 24px rgba(15, 28, 46, 0.25)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #2a4365 0%, #1a2d4a 100%)',
+                   background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)",
                     boxShadow: '0 10px 28px rgba(15, 28, 46, 0.3)',
                     transform: 'translateY(-1px)',
                   },

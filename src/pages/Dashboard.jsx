@@ -203,7 +203,7 @@ const Dashboard = () => {
           {
             icon: <AssignmentIcon sx={{ color: 'primary.main', fontSize: 26 }} />,
             label: 'Total Passes', value: stats.total,
-            color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(197, 160, 89, 0.08)',
+            color: 'linear-gradient(90deg, var(--primary), var(--secondary))', bgColor: 'rgba(37, 99, 235, 0.08)',
             delay: 0.05, trend: ''
           },
           {
@@ -319,7 +319,7 @@ const Dashboard = () => {
                             </Typography>
                           </Box>
                         ) : (
-                          <Box display="inline-flex" alignItems="center" gap={1.2} sx={{ bgcolor: 'rgba(197, 160, 89, 0.08)', px: 1.8, py: 0.7, borderRadius: '10px', border: '1px solid rgba(197, 160, 89, 0.18)' }}>
+                          <Box display="inline-flex" alignItems="center" gap={1.2} sx={{ bgcolor: 'rgba(37, 99, 235, 0.08)', px: 1.8, py: 0.7, borderRadius: '10px', border: '1px solid rgba(37, 99, 235, 0.18)' }}>
                             <span className="static-dot-blue" />
                             <Typography variant="body2" fontWeight={850} color="primary.main" sx={{ fontSize: '0.72rem', letterSpacing: 0.6 }}>
                               {pass.status}

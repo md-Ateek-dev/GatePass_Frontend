@@ -9,27 +9,27 @@ export const ThemeModeContext = createContext({
 
 const luxuryColors = {
   light: {
-    primary: luxuryPalette.lightPrimaryMid,
-    primaryDark: luxuryPalette.lightPrimary,
-    primaryLight: luxuryPalette.lightPrimaryLight,
-    secondary: luxuryPalette.lightSecondary,
-    secondaryDark: luxuryPalette.lightSecondaryDark,
-    secondaryLight: luxuryPalette.lightSecondaryLight,
+    primary: '#1e3a8a',
+    primaryDark: '#0f172a',
+    primaryLight: '#2563eb',
+    secondary: '#2563eb',
+    secondaryDark: '#1e3a8a',
+    secondaryLight: '#60a5fa',
     bg: luxuryPalette.lightBg,
-    paper: luxuryPalette.lightPaper,
-    textPrimary: luxuryPalette.lightTextPrimary,
-    textSecondary: luxuryPalette.lightTextSecondary,
+    paper: 'rgba(255, 255, 255, 0.82)',
+    textPrimary: '#0f172a',
+    textSecondary: '#334155',
   },
   dark: {
-    primary: luxuryPalette.goldLight,
-    primaryDark: luxuryPalette.gold,
-    primaryLight: '#e8d4a8',
-    secondary: luxuryPalette.gold,
-    secondaryDark: luxuryPalette.goldDark,
-    secondaryLight: luxuryPalette.goldLight,
-    bg: '#080c14',
-    paper: '#101827',
-    textPrimary: '#f5f0e8',
+    primary: '#2563eb',
+    primaryDark: '#0f172a',
+    primaryLight: '#60a5fa',
+    secondary: '#1e3a8a',
+    secondaryDark: '#0f172a',
+    secondaryLight: '#3b82f6',
+    bg: '#090d16',
+    paper: 'rgba(17, 25, 40, 0.72)',
+    textPrimary: '#f8fafc',
     textSecondary: '#94a3b8',
   },
 };
@@ -80,7 +80,7 @@ export const ThemeModeProvider = ({ children }) => {
           primary: c.textPrimary,
           secondary: c.textSecondary,
         },
-        divider: isDark ? 'rgba(197, 160, 89, 0.12)' : 'rgba(15, 28, 46, 0.08)',
+        divider: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(15, 28, 46, 0.08)',
       },
       typography: {
         fontFamily: '"Plus Jakarta Sans", "Inter", system-ui, sans-serif',
@@ -113,27 +113,32 @@ export const ThemeModeProvider = ({ children }) => {
             },
             containedPrimary: {
               background: isDark
-                ? `linear-gradient(135deg, ${luxuryPalette.goldLight}, ${luxuryPalette.gold})`
-                : `linear-gradient(135deg, ${c.primaryLight}, ${c.primary})`,
-              color: isDark ? luxuryPalette.navy : '#fff',
+                ? 'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)'
+                : 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)',
+              color: '#ffffff',
               boxShadow: isDark
-                ? '0 4px 16px rgba(197, 160, 89, 0.25)'
-                : '0 4px 16px rgba(15, 23, 42, 0.15)',
+                ? '0 4px 16px rgba(59, 130, 246, 0.35)'
+                : '0 4px 16px rgba(37, 99, 235, 0.22)',
               '&:hover': {
                 background: isDark
-                  ? `linear-gradient(135deg, ${luxuryPalette.gold}, ${luxuryPalette.goldDark})`
-                  : `linear-gradient(135deg, ${c.primary}, ${c.primaryDark})`,
+                  ? 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)'
+                  : 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                 boxShadow: isDark
-                  ? '0 6px 22px rgba(197, 160, 89, 0.35)'
-                  : '0 6px 22px rgba(15, 23, 42, 0.22)',
+                  ? '0 6px 22px rgba(59, 130, 246, 0.5)'
+                  : '0 6px 22px rgba(37, 99, 235, 0.32)',
                 transform: 'translateY(-1px)',
               },
             },
             containedSecondary: {
-              background: `linear-gradient(135deg, ${luxuryPalette.goldLight}, ${luxuryPalette.goldDark})`,
-              color: luxuryPalette.navy,
+              background: isDark
+                ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05))'
+                : 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.03))',
+              color: isDark ? '#60a5fa' : '#1e3a8a',
+              border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(37, 99, 235, 0.2)'}`,
               '&:hover': {
-                background: `linear-gradient(135deg, ${luxuryPalette.gold}, ${luxuryPalette.goldDark})`,
+                background: isDark
+                  ? 'rgba(59, 130, 246, 0.22)'
+                  : 'rgba(37, 99, 235, 0.12)',
               },
             },
           },
@@ -143,10 +148,12 @@ export const ThemeModeProvider = ({ children }) => {
             root: {
               backgroundImage: 'none',
               borderRadius: 16,
-              border: `1px solid ${isDark ? 'rgba(197, 160, 89, 0.1)' : 'rgba(15, 23, 42, 0.06)'}`,
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.5)'}`,
               boxShadow: isDark
-                ? '0 8px 32px rgba(0,0,0,0.4)'
+                ? '0 8px 32px rgba(0,0,0,0.35)'
                 : '0 8px 24px rgba(15, 23, 42, 0.04)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
             },
           },
         },
@@ -155,7 +162,9 @@ export const ThemeModeProvider = ({ children }) => {
             root: {
               backgroundImage: 'none',
               borderRadius: 16,
-              border: `1px solid ${isDark ? 'rgba(197, 160, 89, 0.1)' : 'rgba(15, 23, 42, 0.06)'}`,
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.5)'}`,
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
             },
           },
         },
@@ -167,13 +176,13 @@ export const ThemeModeProvider = ({ children }) => {
         MuiTableCell: {
           styleOverrides: {
             head: {
-              backgroundColor: isDark ? '#141e30' : '#f1f5f9',
-              color: isDark ? luxuryPalette.goldLight : c.primary,
+              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(226, 232, 240, 0.6)',
+              color: isDark ? '#60a5fa' : c.primary,
               fontWeight: 800,
               fontSize: '0.72rem',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              borderBottom: `2px solid ${isDark ? 'rgba(197, 160, 89, 0.15)' : 'rgba(15, 23, 42, 0.08)'}`,
+              borderBottom: `2px solid ${isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(15, 23, 42, 0.08)'}`,
             },
             root: {
               borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(15, 23, 42, 0.05)'}`,
@@ -185,7 +194,7 @@ export const ThemeModeProvider = ({ children }) => {
             indicator: {
               height: 3,
               borderRadius: 3,
-              background: `linear-gradient(90deg, ${luxuryPalette.gold}, ${luxuryPalette.goldLight})`,
+              background: 'linear-gradient(90deg, #1e3a8a, #2563eb)',
             },
           },
         },
@@ -202,13 +211,21 @@ export const ThemeModeProvider = ({ children }) => {
         MuiOutlinedInput: {
           styleOverrides: {
             root: {
-              borderRadius: 12,
+              borderRadius: 14,
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : '#ffffff',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 28, 46, 0.12)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: isDark ? 'rgba(59, 130, 246, 0.45)' : 'rgba(37, 99, 235, 0.4)',
+              },
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: c.secondary,
+                borderColor: isDark ? '#60a5fa' : '#2563eb',
                 borderWidth: '1px',
               },
               '&.Mui-focused': {
-                boxShadow: 'none',
+                boxShadow: isDark ? '0 0 14px rgba(59, 130, 246, 0.18)' : '0 0 14px rgba(37, 99, 235, 0.08)',
               },
             },
           },

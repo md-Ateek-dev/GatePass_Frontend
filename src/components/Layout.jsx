@@ -156,13 +156,13 @@ const Layout = ({ children }) => {
               onClick={() => { navigate(item.path); if (isMobile) setMobileOpen(false); }}
               sx={{
                 borderRadius: '14px',
-                bgcolor: active ? 'rgba(197, 160, 89, 0.1)' : 'transparent',
+                bgcolor: active ? 'rgba(37, 99, 235, 0.12)' : 'transparent',
                 color: active ? 'primary.main' : 'text.secondary',
                 fontWeight: active ? 800 : 600,
-                border: active ? `1px solid ${isDark ? 'rgba(197, 160, 89, 0.25)' : 'rgba(197, 160, 89, 0.2)'}` : '1px solid transparent',
+                border: active ? `1px solid ${isDark ? 'rgba(37, 99, 235, 0.25)' : 'rgba(37, 99, 235, 0.15)'}` : '1px solid transparent',
                 boxShadow: active ? (isDark ? '0 4px 12px rgba(0,0,0,0.15)' : '0 4px 12px rgba(15, 28, 46, 0.04)') : 'none',
                 '&:hover': {
-                  bgcolor: active ? 'rgba(197, 160, 89, 0.14)' : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(197, 160, 89, 0.06)'),
+                  bgcolor: active ? 'rgba(37, 99, 235, 0.18)' : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(37, 99, 235, 0.06)'),
                   color: 'primary.main',
                   transform: 'translateX(2px)',
                   '& .nav-icon': { color: 'primary.main' },
@@ -235,7 +235,7 @@ const Layout = ({ children }) => {
   );
 
   if (isFullscreenRoute) {
-    return <Box sx={{ minHeight: '100vh', width: '100%', m: 0, p: 0, bgcolor: 'background.default' }}>{children}</Box>;
+    return <Box sx={{ minHeight: '100vh', width: '100%', m: 0, p: 0, bgcolor: 'transparent' }}>{children}</Box>;
   }
 
   const topBar = (
@@ -300,7 +300,7 @@ const Layout = ({ children }) => {
                   width: 38,
                   height: 38,
                   fontWeight: 800,
-                  background: 'linear-gradient(135deg, #1a2d4a, #c5a059)',
+                  background: 'linear-gradient(135deg, #0f172a, #2563eb)',
                   border: `2px solid ${isDark ? 'rgba(255,255,255,0.12)' : '#fff'}`,
                 }}
               >
@@ -314,7 +314,7 @@ const Layout = ({ children }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'transparent' }}>
       {/* Sidebar — full height, not covered by top bar */}
       {user && (
         <Box
@@ -381,7 +381,7 @@ const Layout = ({ children }) => {
           sx={{
             flexGrow: 1,
             p: { xs: 2.5, sm: 4 },
-            bgcolor: 'background.default',
+            bgcolor: 'transparent',
             overflowX: 'hidden',
           }}
         >
